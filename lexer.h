@@ -2,8 +2,11 @@
 #define LEXER_H
 
 #include <ctype.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 #include "token.h"
 #include "errors.h"
 #include "chararray.h"
@@ -25,6 +28,7 @@ typedef enum{
     STATE_DOUBLE_EXPONENT_E,
     STATE_QUOTATION_CENTER_E,
     STATE_QUOTATION_ESCAPE_CHAR,
+    STATE_QUOTATION_TRIPLE_E,
     STATE_SLASH,
     STATE_QUESTIONMARK,
     STATE_CLOSING_TAG,

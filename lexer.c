@@ -1,12 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "lexer.h"
 
 
 lexer_T *lexer_init() {
     lexer_T *lexer = calloc(1, sizeof(struct lexer_struct));
-
 
     lexer->state = STATE_START;
     lexer->i = 0;
@@ -70,6 +66,91 @@ int is_keyword(char *src) {
     return 0;
 }
 
+
+
+
+void clean_string(char **str) {
+    size_t str_len = strlen(*str);
+
+    char *new_str = chararray_init(str_len +1);
+    if (new_str == NULL) {
+        // TODO error
+    }
+
+    size_t i;
+    size_t n_i = 0;
+    for (i = 0; i < str_len; i++)
+    {
+        char c = (char)0;
+
+        if ((*str)[i] == '\\') {
+            switch ((*str)[i + 1]) {
+            case 'u':
+                if (i + 5 < str_len && (*str)[i + 2] == '{' && isxdigit((*str)[i + 3]) && isxdigit((*str)[i + 4]) && (*str)[i + 5] == '}') {
+                    char hex[3] = {(*str)[i + 3], (*str)[i + 4], '\0'};
+                    int num = (int)strtol(hex, NULL, 16);
+                    if (num >= 0x01 && num <= 0xFF) { // check if the number is in the range of 1-255
+                        c = num;
+                        i += 5;
+                    }
+                    else {
+                        c = (*str)[i];
+                    }
+                }
+                break;
+            case '"':
+                c = '"';
+                i++;
+                break;
+            case 'n':
+                c = '\n';
+                i++;
+                break;
+            case 't':
+                c = '\t';
+                i++;
+                break;
+            case 'r':
+                c = '\r';
+                i++;
+                break;
+            case '\\':
+                c = '\\';
+                i++;
+                break;
+            default:
+                c = (*str)[i]; // take the backslash
+                break;
+            }
+        }
+        else {
+            c = (*str)[i];
+        }
+        new_str[n_i++] = c;
+    }
+
+    char *str_final = chararray_init(4*strlen(new_str) +1);
+    for (i = 0; i < strlen(new_str); i++)
+    {
+        char num[7] = {(char)0};
+        char c_as_string[2];
+
+        c_as_string[0] = new_str[i];
+        c_as_string[1] = '\0';
+
+        if ((new_str[i] >= 0 && new_str[i] <= 32) || new_str[i] == 35 || new_str[i] == 92) { // 0-32, 35, 92
+            sprintf(num, "\\0%d", new_str[i]);
+            strcat(str_final, num);
+        } else {
+            strcat(str_final, c_as_string);
+        }
+    }
+
+    chararray_free(new_str);
+    chararray_free(*str);
+
+    *str = str_final;
+}
 
 error lexer_next_token(lexer_T *lexer, token *Token) {
 
@@ -472,17 +553,51 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
         case STATE_QUOTATION_CENTER_E:
             if (lexer->c == '"') {
-                lexer->state = STATE_START;
                 lexer_advance(lexer);
-                //clean_string(&value);
-                Token->ID = TOKEN_ID_STRING;
-                Token->VAL.string = value;
-                return SUCCESS;
+                if (lexer->c == '"'){
+                    lexer_advance(lexer);
+                    lexer->state = STATE_QUOTATION_TRIPLE_E;
+                }
+                else{
+                    lexer->state = STATE_START;
+                    clean_string(&value);
+                    Token->ID = TOKEN_ID_STRING;
+                    Token->VAL.string = value;
+                    return SUCCESS;
+                }
             }
             else if (lexer->c == '\\') {
                 lexer->state = STATE_QUOTATION_ESCAPE_CHAR;
                 chararray_append(&value, lexer->c);
                 lexer_advance(lexer);
+            }
+            else {
+                chararray_append(&value, lexer->c);
+                lexer_advance(lexer);
+            }
+            break;
+        case STATE_QUOTATION_TRIPLE_E:
+            if (lexer->c == '"') {
+                lexer_advance(lexer);
+                if (lexer->c == '"'){
+                    lexer_advance(lexer);
+                    if (lexer->c == '"'){
+                        lexer_advance(lexer);
+                        lexer->state = STATE_START;
+                        clean_string(&value);
+                        Token->ID = TOKEN_ID_STRING;
+                        Token->VAL.string = value;
+                        return SUCCESS;
+                    }
+                    else{
+                        chararray_append(&value, lexer->c);
+                        lexer_advance(lexer);
+                }
+                }
+                else{
+                    chararray_append(&value, lexer->c);
+                    lexer_advance(lexer);
+                }
             }
             else {
                 chararray_append(&value, lexer->c);

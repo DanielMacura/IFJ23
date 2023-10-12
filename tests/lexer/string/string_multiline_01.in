@@ -1,0 +1,8 @@
+let message = """
+Hello,
+    
+    How are you doing today?
+    
+Best regards,
+    John
+    """

@@ -5,10 +5,6 @@
 #include "lexer.h"
 #include "token.h"
 
-
-
-error ERROR = SUCCESS;
-
 /**
  * @brief Main function of the compiler
  * 
@@ -53,15 +49,26 @@ int main(int argc, char **argv) {
     {
         while (Token->ID != TOKEN_ID_EOF)
         {
-            lexer_next_token(lexer, Token);
-            //print the current token but not as number but by its name from the enum
-            printf("%s\n", token_names[Token->ID]);
+            int return_code = lexer_next_token(lexer, Token);
+            if (return_code != SUCCESS)
+            {
+                printf("Error code: %d\n", return_code);
+                return return_code;
+            }
+            switch (Token->ID) {
+                case TOKEN_ID_INTEGER:
+                    printf("%s:%s\n", token_names[Token->ID], Token->VAL.string);
+                    break;
+                case TOKEN_ID_STRING:
+                    printf("%s:%s\n", token_names[Token->ID], Token->VAL.string);
+                    break;
+                case TOKEN_ID_FLOAT:
+                    printf("%s:%s\n", token_names[Token->ID], Token->VAL.string);
+                    break;
+                default:
+                    printf("%s\n", token_names[Token->ID]);
+            }
         }
 
     }
-    
-
-
-
-    return ERROR;
 } 

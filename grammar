@@ -1,0 +1,41 @@
+//LL(1) gramatika v yacc-like syntaxe
+//
+// https://cyberzhg.github.io/toolbox/cfg2ll pre pvorbu ll(k) gramatiky z cfg
+// http://www.fit.vutbr.cz/~ikocman/llkptg/ pre tvorbu ll tabulky a overenia stupna gramatiky
+//
+//--------------------//
+
+BODY : /*eps*/
+| "func" func_id "(" PARAMETERS ")" "->" TYPE "{" BODY "}" BODY
+| "if" EXPRESSION "{" BODY "}" "else" "{" BODY "}" BODY
+| "while" EXPRESSION "{" BODY "}" BODY
+| "return" RETURN ";" BODY
+| FUNCTION_CALL ";" BODY
+| DEFINITION ";" BODY
+| ASSIGNMENT ";" BODY;
+
+DEFINITION : "var" var_id DEFINITION_PRIME
+| "let" var_id DEFINITION_PRIME;
+
+DEFINITION_PRIME : ":" TYPE DEFINITION_PRIME_PRIME
+| "=" ASSIGNMENT_PRIME;
+
+DEFINITION_PRIME_PRIME : /*eps*/
+| "=" ASSIGNMENT_PRIME;
+
+ASSIGNMENT : var_id "=" ASSIGNMENT_PRIME;
+
+ASSIGNMENT_PRIME : EXPRESSION
+| FUNCTION_CALL;
+
+FUNCTION_CALL : func_id "(" PARAMETERS ")";
+
+TYPE : C_TYPE POSTFIX;
+
+POSTFIX : /*eps*/
+| "?"
+
+C_TYPE : "int"
+| "double"
+| "string"
+| "void";
