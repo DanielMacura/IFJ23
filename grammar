@@ -6,13 +6,21 @@
 //--------------------//
 
 BODY : /*eps*/
-| "func" func_id "(" PARAMETERS ")" "->" TYPE "{" BODY "}" BODY
-| "if" EXPRESSION "{" BODY "}" "else" "{" BODY "}" BODY
-| "while" EXPRESSION "{" BODY "}" BODY
+| "func" func_id "(" PARAMETERS ")" "->" TYPE "{" NESTED_BODY "}" BODY
+| "if" EXPRESSION "{" NESTED_BODY "}" "else" "{" NESTED_BODY "}" BODY
+| "while" EXPRESSION "{" NESTED_BODY "}" BODY
 | "return" RETURN END_OF_COMMAND BODY
 | FUNCTION_CALL END_OF_COMMAND BODY
 | DEFINITION END_OF_COMMAND BODY
 | ASSIGNMENT END_OF_COMMAND BODY;
+
+NESTED_BODY : /*eps*/                                                           // Avoids nested function definion 
+| "if" EXPRESSION "{" NESTED_BODY "}" "else" "{" NESTED_BODY "}" NESTED_BODY
+| "while" EXPRESSION "{" NESTED_BODY "}" NESTED_BODY
+| "return" RETURN END_OF_COMMAND NESTED_BODY
+| FUNCTION_CALL END_OF_COMMAND NESTED_BODY
+| DEFINITION END_OF_COMMAND NESTED_BODY
+| ASSIGNMENT END_OF_COMMAND NESTED_BODY;
 
 DEFINITION : "var" var_id DEFINITION_PRIME
 | "let" var_id DEFINITION_PRIME;
