@@ -31,4 +31,3 @@ jobs:
     - uses: EnricoMi/publish-unit-test-result-action@v2
     - name: make test
       run: make test
-           testresults/**/*.xml
