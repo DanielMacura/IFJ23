@@ -1,0 +1,8 @@
+<testsuite name="Test Suite" tests="6" failures="0" errors="0" skipped="0">
+<testcase name="string_multiline_01" classname="tests.lexer.string" time="0.001" />
+<testcase name="string_ecape_01" classname="tests.lexer.string" time="0.001" />
+<testcase name="basic_lexer_test" classname="tests.lexer.basic_lexer_test" time="0.001" />
+<testcase name="decimal_02" classname="tests.lexer.numbers.decimals" time="0.001" />
+<testcase name="decimal_01" classname="tests.lexer.numbers.decimals" time="0.001" />
+<testcase name="integer_01" classname="tests.lexer.numbers.integers" time="0.001" />
+</testsuite>
