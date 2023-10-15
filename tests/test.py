@@ -28,7 +28,7 @@ def run_tests(program):
                 testsuite.set("tests", str(int(testsuite.get("tests")) + 1))
                 testsuite.append(testcase)
                 os.remove(os.path.join(path, test_name + ".temp"))
-    with open("testresults.xml", "w") as f:
+    with open("test-results.xml", "w") as f:
         f.write(ET.tostring(testsuite, encoding="unicode", method="xml"))
     print(f"Tests passed: {int(testsuite.get('tests')) - int(testsuite.get('failures'))}/{testsuite.get('tests')}")
 
