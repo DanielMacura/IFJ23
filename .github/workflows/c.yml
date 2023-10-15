@@ -26,12 +26,11 @@ jobs:
     - name: Install Python dependencies
       run: python -m pip install --upgrade pip requests
 
-    - name: make
-      run: make
-    - uses: EnricoMi/publish-unit-test-result-action@v2
-    - name: make test
-      id: test-results
+    - name: Make test
       run: make test
+    - name: Show test
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      id: test-results
 
     - name: Set badge color
       shell: bash
