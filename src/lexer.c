@@ -66,7 +66,41 @@ int is_keyword(char *src) {
     return 0;
 }
 
+void lexer_skip_comment(lexer_T *lexer) {
+    if (lexer->c != '/')
+        return;
 
+    char prev;
+    int block_depth = 0;
+
+    lexer_advance(lexer);
+    switch (lexer->c) {
+        case '/':
+            while (lexer->c != '\n' && lexer->c != EOF) {
+                lexer_advance(lexer);
+            }
+            lexer_skip_whitespace(lexer);
+            break;
+        case '*':
+            prev = '/';
+            while (lexer->c != EOF) {
+                if (prev == '*' && lexer->c == '/') {
+                    block_depth--;
+                    if (block_depth == 0) {
+                        lexer_advance(lexer);
+                        lexer_skip_whitespace(lexer);
+                        return;
+                    }
+                }
+                else if (prev == '/' && lexer->c == '*') {
+                    block_depth++;
+                }
+                prev = lexer->c;
+                lexer_advance(lexer);
+            }
+            break;
+    }
+}
 
 
 void clean_string(char **str) {
@@ -613,7 +647,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
         case STATE_SLASH:
             char_i = lexer->i;
-            //lexer_skip_comment(lexer);
+            lexer_skip_comment(lexer);
             lexer->state = STATE_START;
             if (lexer->i - char_i == 1) { // moved just one character ie no comment skipped
                 Token->ID = TOKEN_ID_DIVISION;
