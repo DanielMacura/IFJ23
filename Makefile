@@ -1,8 +1,9 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -g -lm -pedantic
 LDFLAGS = -lm
-SOURCES = $(wildcard *.c)
-HEADERS = $(wildcard *.h)
+SRC_DIR = src
+SOURCES = $(wildcard $(SRC_DIR)/*.c)
+HEADERS = $(wildcard $(SRC_DIR)/*.h)
 OBJECTS = $(SOURCES:.c=.o)
 EXECUTABLE = ifj23
 
@@ -22,4 +23,3 @@ clean:
 
 test: $(EXECUTABLE)
 	python3 tests/test.py ./$(EXECUTABLE)
-	
