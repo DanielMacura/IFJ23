@@ -12,6 +12,9 @@
 #include "chararray.h"
 
 
+/**
+ * @brief Defines the lexer_state enum which represents the different states of the lexer.
+ */
 typedef enum{
     STATE_START,
     STATE_IDENTIFIER_START,
@@ -40,35 +43,41 @@ typedef enum{
     STATE_NOT_EQ,    // !=
 } lexer_state;
 
-typedef enum {
-    STATE_NONE,
-    STATE_
-} lexer_comment_state;
-
-typedef struct lexer_struct {
-    char c;
-    unsigned int i;
-    lexer_state state;
-} lexer_T;
 
 /**
- * @brief Initializes the lexer
+ * @brief Struct representing a lexer object.
  * 
- * @return lexer_T* 
+ * The lexer_T struct contains information about the current state of the lexer,
+ * including the current character being processed, the current index in the input
+ * string, and the current state of the lexer.
+ */
+typedef struct lexer_struct {
+    char c; /* The current character being processed by the lexer. */
+    unsigned int i; /* The current index in the input string. */
+    lexer_state state; /* The current state of the lexer. */
+} lexer_T;
+
+
+/**
+ * @brief Initializes a new lexer instance.
+ * 
+ * @return A pointer to the newly created lexer instance.
  */
 lexer_T *lexer_init();
 
 /**
- * @brief Frees the lexer
+ * @brief Frees the memory allocated for a lexer.
  * 
- * @param lexer 
+ * @param lexer The lexer to free.
  */
 void lexer_free(lexer_T *lexer);
 
 /**
- * @brief Advances the lexer
- * 
- * @param lexer 
+ * @brief Advances the lexer to the next character in the input stream.
+ * If the end of the input stream has been reached, sets the lexer's
+ * current character to EOF.
+ *
+ * @param lexer The lexer to advance.
  */
 void lexer_advance(lexer_T *lexer);
 
@@ -80,28 +89,29 @@ void lexer_advance(lexer_T *lexer);
 void lexer_skip_comment(lexer_T *lexer);
 
 /**
- * @brief Skips the whitespace
+ * @brief Skips over any whitespace characters in the input stream.
+ * Whitespace characters include spaces, tabs, newlines, and carriage returns.
  * 
- * @param lexer 
+ * @param lexer The lexer object to operate on.
  */
 void lexer_skip_whitespace(lexer_T *lexer);
 
+
 /**
- * @brief Returns the next token from the lexer
+ * @brief Get the next token from the input stream.
  * 
- * @param lexer 
- * @param Token 
- * @return error 
+ * @param lexer Pointer to the lexer object.
+ * @param Token Pointer to the token object to be filled with the next token.
+ * @return error Returns an error code indicating success or failure.
  */
 error lexer_next_token(lexer_T *lexer, token *Token);
 
 int isoctdigit(char c);
 
 /**
- * @brief Checks if the identifier is a keyword
- * 
- * @param src 
- * @return int 
+ * @brief Determines if a given string is a keyword in the language.
+ * @param src The string to check.
+ * @return The keyword code if the string is a keyword, otherwise 0.
  */
 int is_keyword(char *src);
 

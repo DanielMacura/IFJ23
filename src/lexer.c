@@ -1,6 +1,11 @@
 #include "lexer.h"
 
 
+/**
+ * @brief Initializes a new lexer instance.
+ * 
+ * @return A pointer to the newly created lexer instance.
+ */
 lexer_T *lexer_init() {
     lexer_T *lexer = calloc(1, sizeof(struct lexer_struct));
 
@@ -11,10 +16,22 @@ lexer_T *lexer_init() {
     return lexer;
 }
 
+/**
+ * @brief Frees the memory allocated for a lexer.
+ * 
+ * @param lexer The lexer to free.
+ */
 void lexer_free(lexer_T *lexer) {
     free(lexer);
 }
 
+/**
+ * @brief Advances the lexer to the next character in the input stream.
+ * If the end of the input stream has been reached, sets the lexer's
+ * current character to EOF.
+ *
+ * @param lexer The lexer to advance.
+ */
 void lexer_advance(lexer_T *lexer) {
     if (lexer->c != EOF) {
         lexer->i += 1;
@@ -22,12 +39,23 @@ void lexer_advance(lexer_T *lexer) {
     }
 }
 
+/**
+ * @brief Skips over any whitespace characters in the input stream.
+ * Whitespace characters include spaces, tabs, newlines, and carriage returns.
+ * 
+ * @param lexer The lexer object to operate on.
+ */
 void lexer_skip_whitespace(lexer_T *lexer) {
     while (lexer->c == ' ' || lexer->c == '\r' || lexer->c == '\t' || lexer->c == '\n') {
         lexer_advance(lexer);
     }
 }
 
+/**
+ * @brief Determines if a given string is a keyword in the language.
+ * @param src The string to check.
+ * @return The keyword code if the string is a keyword, otherwise 0.
+ */
 int is_keyword(char *src) {
     
     if (!strcmp(src, "Double")) {
@@ -66,7 +94,13 @@ int is_keyword(char *src) {
     return 0;
 }
 
+/**
+ * Skips comments in the input stream.
+ * 
+ * @param lexer The lexer object.
+ */
 void lexer_skip_comment(lexer_T *lexer) {
+    // If the current character is not a forward slash, return.
     if (lexer->c != '/')
         return;
 
@@ -76,12 +110,14 @@ void lexer_skip_comment(lexer_T *lexer) {
     lexer_advance(lexer);
     switch (lexer->c) {
         case '/':
+            // Single-line comment
             while (lexer->c != '\n' && lexer->c != EOF) {
                 lexer_advance(lexer);
             }
             lexer_skip_whitespace(lexer);
             break;
         case '*':
+            // Multi-line comment
             prev = '/';
             while (lexer->c != EOF) {
                 if (prev == '*' && lexer->c == '/') {
@@ -186,6 +222,13 @@ void clean_string(char **str) {
     *str = str_final;
 }
 
+/**
+ * @brief Get the next token from the input stream.
+ * 
+ * @param lexer Pointer to the lexer object.
+ * @param Token Pointer to the token object to be filled with the next token.
+ * @return error Returns an error code indicating success or failure.
+ */
 error lexer_next_token(lexer_T *lexer, token *Token) {
 
  char *value = chararray_init(0);
