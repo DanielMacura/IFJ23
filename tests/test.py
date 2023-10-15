@@ -37,7 +37,6 @@ def main():
                 #remove the temp file
                 os.system("rm " + os.path.join(path, name[:-3] + ".temp"))
                 #print a newline
-                print()
     #print the number of tests passed and the number of tests
     print("Tests passed: " + str(num_passed) + "/" + str(num_tests))
 
