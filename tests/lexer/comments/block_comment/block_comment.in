@@ -1,0 +1,9 @@
+/*Beginning of test*/
+
+let /*This is an inline block comment*/ x = 3.14    /*This is another inline block comment*/
+
+/*
+------***------
+END of test
+------***------
+*/
