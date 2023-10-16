@@ -46,7 +46,7 @@ void lexer_advance(lexer_T *lexer) {
  * @param lexer The lexer object to operate on.
  */
 void lexer_skip_whitespace(lexer_T *lexer) {
-    while (lexer->c == ' ' || lexer->c == '\r' || lexer->c == '\t' || lexer->c == '\n') {
+    while (lexer->c == ' ' || lexer->c == '\r' || lexer->c == '\t') {
         lexer_advance(lexer);
     }
 }
@@ -254,6 +254,12 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                 chararray_append(&value, lexer->c);
                 lexer_advance(lexer);
                 lexer->state = STATE_INTEGER_E;
+            }
+            else if (lexer->c == '\n'){
+                lexer_advance(lexer);
+                Token->ID = TOKEN_ID_EOL;
+                Token->VAL.string = value;
+                return SUCCESS;
             }
 
             else if (lexer->c == '?') {
@@ -567,8 +573,9 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                 lexer->state = STATE_NOT_EQ;
             }
             else {
-                lexer_advance(lexer);
-                return LEXICAL_ERR;
+                lexer->state = STATE_START;
+                Token->ID = TOKEN_ID_EXCLAMATIONMARK;
+                return SUCCESS;
             }
             break;
 

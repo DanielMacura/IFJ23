@@ -28,6 +28,7 @@ const char *token_names[] = {
         "LTE",
         "QUESTIONMARK",
         "NIL_COALESCING",
+        "EXCLAMATIONMARK",
         "DIVISION",
         "MULTIPLICATION",
         "COMMA",

@@ -22,6 +22,7 @@ typedef enum {
     TOKEN_ID_LTE,                   // <=
     TOKEN_ID_QUESTIONMARK,          // ?
     TOKEN_ID_NIL_COALESCING,        // ??
+    TOKEN_ID_EXCLAMATIONMARK,       // !
     TOKEN_ID_DIVISION,
     TOKEN_ID_MULTIPLICATION,
     TOKEN_ID_COMMA,
