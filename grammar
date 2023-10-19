@@ -4,6 +4,7 @@
 // http://www.fit.vutbr.cz/~ikocman/llkptg/ pre tvorbu ll tabulky a overenia stupna gramatiky
 //
 //--------------------//
+%token func_id
 
 BODY : /*eps*/
 | "func" func_id "(" PARAMETERS ")" "->" TYPE "{" NESTED_BODY "}" BODY
@@ -36,7 +37,7 @@ ASSIGNMENT : var_id "=" ASSIGNMENT_PRIME;
 ASSIGNMENT_PRIME : EXPRESSION
 | FUNCTION_CALL;
 
-FUNCTION_CALL : func_id "(" PARAMETERS ")";
+FUNCTION_CALL : func_id "(" ARGUMENTS ")";
 
 TYPE : C_TYPE POSTFIX;
 
@@ -49,6 +50,7 @@ C_TYPE : "int"
 | "void";
 
 END_OF_COMMAND : "\n"
+| "|-"  //symbolizes EOF
 | ";" END_OF_COMMAND_PRIME;
 
 END_OF_COMMAND_PRIME : /*eps*/
