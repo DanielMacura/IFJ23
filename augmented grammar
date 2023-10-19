@@ -1,0 +1,79 @@
+//LL(1) gramatika v yacc-like syntaxe
+//
+// https://cyberzhg.github.io/toolbox/cfg2ll pre pvorbu ll(k) gramatiky z cfg
+// http://www.fit.vutbr.cz/~ikocman/llkptg/ pre tvorbu ll tabulky a overenia stupna gramatiky
+//
+//--------------------//
+%token EXPRESSION TOKEN_EOF TOKEN_EOL TOKEN_IDENTIFIER TOKEN_VARIABLE TOKEN_INTEGER TOKEN_FLOAT TOKEN_STRING TOKEN_KEYWORD TOKEN_PLUS TOKEN_MINUS TOKEN_EQUALS TOKEN_DOUBLE_EQUALS TOKEN_NOT_EQUALS TOKEN_GT TOKEN_LT TOKEN_GTE TOKEN_LTE TOKEN_ARROW TOKEN_QUESTIONMARK TOKEN_NIL_COALESCING TOKEN_EXCLAMATIONMARK TOKEN_DIVISION TOKEN_MULTIPLICATION TOKEN_COMMA TOKEN_SEMICOLLON TOKEN_COLON TOKEN_LBRACKET TOKEN_RBRACKET TOKEN_LCURLYBRACKET TOKEN_RCURLYBRACKET TOKEN_KW_DOUBLE TOKEN_KW_ELSE TOKEN_KW_FUNC TOKEN_KW_IF TOKEN_KW_INT TOKEN_KW_LET TOKEN_KW_NIL TOKEN_KW_RETURN TOKEN_KW_STRING TOKEN_KW_VAR TOKEN_KW_WHILE
+%%
+
+body : /*eps*/
+| TOKEN_KW_FUNC TOKEN_IDENTIFIER TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
+| TOKEN_KW_IF EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
+| TOKEN_KW_WHILE EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
+| TOKEN_KW_RETURN return end_of_command body
+| function_call end_of_command body
+| definition end_of_command body
+| assignment end_of_command body;
+
+nested_body : /*eps*/                                                           // Avoids nested function definion 
+| TOKEN_KW_IF EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET nested_body
+| TOKEN_KW_WHILE EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET nested_body
+| TOKEN_KW_RETURN return end_of_command nested_body
+| function_call end_of_command nested_body
+| definition end_of_command nested_body
+| assignment end_of_command nested_body;
+
+definition : TOKEN_KW_VAR TOKEN_VARIABLE definition_prime
+| TOKEN_KW_LET TOKEN_VARIABLE definition_prime;
+
+definition_prime : TOKEN_COLON type definition_prime_prime
+| TOKEN_EQUALS assignment_prime;
+
+definition_prime_prime : /*eps*/
+| TOKEN_EQUALS assignment_prime;
+
+assignment : TOKEN_VARIABLE TOKEN_EQUALS assignment_prime;
+
+assignment_prime : EXPRESSION
+| function_call;
+
+function_call : TOKEN_IDENTIFIER TOKEN_LBRACKET arguments TOKEN_RBRACKET;
+
+type : c_type postfix;
+
+postfix : /*eps*/
+| TOKEN_QUESTIONMARK;
+
+c_type : TOKEN_KW_INT
+| TOKEN_KW_DOUBLE
+| TOKEN_KW_STRING
+| TOKEN_KW_NIL;
+
+end_of_command : TOKEN_EOL
+| TOKEN_EOF 
+| TOKEN_SEMICOLLON end_fo_command_prime;
+
+end_fo_command_prime : /*eps*/
+| TOKEN_EOL;
+
+parameters : /*eps*/
+| TOKEN_VARIABLE TOKEN_VARIABLE TOKEN_COLON type parameters_prime;
+
+parameters_prime : /*eps*/
+| TOKEN_COMMA TOKEN_VARIABLE TOKEN_VARIABLE TOKEN_COLON type parameters_prime;
+
+arguments : /*eps*/
+| TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
+| EXPRESSION arguments_prime;
+
+arguments_prime : /*eps*/
+| TOKEN_COMMA arguments_prime_prime;
+
+arguments_prime_prime :
+| TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
+| EXPRESSION arguments_prime;
+
+return : /*eps*/
+| EXPRESSION
+| function_call;
