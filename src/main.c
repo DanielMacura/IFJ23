@@ -11,6 +11,8 @@
  * @return int 
  */
 const char *token_names[] = {
+        "EOF",
+        "EOL",
         "IDENTIFIER",
         "VARIABLE",
         "INTEGER",
@@ -26,6 +28,7 @@ const char *token_names[] = {
         "LT",
         "GTE",
         "LTE",
+        "ARROW",
         "QUESTIONMARK",
         "NIL_COALESCING",
         "EXCLAMATIONMARK",
@@ -38,8 +41,17 @@ const char *token_names[] = {
         "RBRACKET",
         "LCURLYBRACKET",
         "RCURLYBRACKET",
-        "EOL",
-        "EOF"
+        "KW_DOUBLE",
+        "KW_ELSE",
+        "KW_FUNC",
+        "KW_IF",
+        "KW_INT",
+        "KW_LET",
+        "KW_NIL",
+        "KW_RETURN",
+        "KW_STRING",
+        "KW_VAR",
+        "KW_WHILE"
     };
 int main(int argc, char **argv) {
     lexer_T *lexer = lexer_init();
@@ -47,8 +59,8 @@ int main(int argc, char **argv) {
 
     // Lexer tests, generates tokens from the input
     if (argc == 2 && strcmp(argv[1], "-t") == 0)
-    {
-        while (Token->ID != TOKEN_ID_EOF)
+    {        
+        do 
         {
             int return_code = lexer_next_token(lexer, Token);
             if (return_code != SUCCESS)
@@ -57,19 +69,18 @@ int main(int argc, char **argv) {
                 return return_code;
             }
             switch (Token->ID) {
-                case TOKEN_ID_INTEGER:
+                case TOKEN_INTEGER:
                     printf("%s:%s\n", token_names[Token->ID], Token->VAL.string);
                     break;
-                case TOKEN_ID_STRING:
+                case TOKEN_STRING:
                     printf("%s:%s\n", token_names[Token->ID], Token->VAL.string);
                     break;
-                case TOKEN_ID_FLOAT:
+                case TOKEN_FLOAT:
                     printf("%s:%s\n", token_names[Token->ID], Token->VAL.string);
                     break;
                 default:
                     printf("%s\n", token_names[Token->ID]);
             }
-        }
-
+        } while (Token->ID != TOKEN_EOF);
     }
 } 

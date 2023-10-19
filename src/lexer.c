@@ -257,7 +257,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else if (lexer->c == '\n'){
                 lexer_advance(lexer);
-                Token->ID = TOKEN_ID_EOL;
+                Token->ID = TOKEN_EOL;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -287,21 +287,21 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
             else if (lexer->c == '+') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_PLUS;
+                Token->ID = TOKEN_PLUS;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
             }
             else if (lexer->c == '-') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_MINUS;
+                Token->ID = TOKEN_MINUS;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
             }
             else if (lexer->c == '*') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_MULTIPLICATION;
+                Token->ID = TOKEN_MULTIPLICATION;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
@@ -320,7 +320,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
             else if (lexer->c == '(') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_LBRACKET;
+                Token->ID = TOKEN_LBRACKET;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
@@ -328,14 +328,14 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
             else if (lexer->c == ')') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_RBRACKET;
+                Token->ID = TOKEN_RBRACKET;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
             }
             else if (lexer->c == '{') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_LCURLYBRACKET;
+                Token->ID = TOKEN_LCURLYBRACKET;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
@@ -343,7 +343,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
             else if (lexer->c == '}') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_RCURLYBRACKET;
+                Token->ID = TOKEN_RCURLYBRACKET;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
@@ -351,7 +351,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
             else if (lexer->c == ',') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_COMMA;
+                Token->ID = TOKEN_COMMA;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
@@ -359,14 +359,14 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
 
             else if (lexer->c == ':') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_COLON;
+                Token->ID = TOKEN_COLON;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
             }
 
             else if (lexer->c == EOF) {
-                Token->ID = TOKEN_ID_EOF;
+                Token->ID = TOKEN_EOF;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -385,7 +385,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_IDENTIFIER;
+                Token->ID = TOKEN_IDENTIFIER;
                 Token->VAL.string = value;
                 
                 return SUCCESS;
@@ -413,14 +413,14 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                 keyword kw = is_keyword(value);
                 if (kw) {
                     lexer->state = STATE_START;
-                    Token->ID = TOKEN_ID_KEYWORD;
+                    Token->ID = TOKEN_KEYWORD;
                     Token->VAL.keyword = kw;
                     return SUCCESS;
 
                 }
                 else {
                     lexer->state = STATE_START;
-                    Token->ID = TOKEN_ID_IDENTIFIER;
+                    Token->ID = TOKEN_IDENTIFIER;
                     Token->VAL.string = value;
                     
                     return SUCCESS;
@@ -446,7 +446,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_INTEGER;
+                Token->ID = TOKEN_INTEGER;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -477,7 +477,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_FLOAT;
+                Token->ID = TOKEN_FLOAT;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -519,7 +519,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_INTEGER;
+                Token->ID = TOKEN_INTEGER;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -561,7 +561,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_INTEGER;
+                Token->ID = TOKEN_INTEGER;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -574,7 +574,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_EXCLAMATIONMARK;
+                Token->ID = TOKEN_EXCLAMATIONMARK;
                 return SUCCESS;
             }
             break;
@@ -583,7 +583,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             if (lexer->c == '=') {
                 lexer_advance(lexer);
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_NOT_EQUALS;
+                Token->ID = TOKEN_NOT_EQUALS;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -597,13 +597,13 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             if (lexer->c == '=') {
                 lexer_advance(lexer);
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_DOUBLE_EQUALS;
+                Token->ID = TOKEN_DOUBLE_EQUALS;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_EQUALS;
+                Token->ID = TOKEN_EQUALS;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -613,11 +613,11 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             if (lexer->c == '=') {
                 lexer_advance(lexer);
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_GTE;
+                Token->ID = TOKEN_GTE;
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_GT;
+                Token->ID = TOKEN_GT;
             }
             Token->VAL.string = value;
             return SUCCESS;
@@ -626,11 +626,11 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             if (lexer->c == '=') {
                 lexer_advance(lexer);
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_LTE;
+                Token->ID = TOKEN_LTE;
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_LT;
+                Token->ID = TOKEN_LT;
             }
             Token->VAL.string = value;
             return SUCCESS;
@@ -645,7 +645,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                 else{
                     lexer->state = STATE_START;
                     clean_string(&value);
-                    Token->ID = TOKEN_ID_STRING;
+                    Token->ID = TOKEN_STRING;
                     Token->VAL.string = value;
                     return SUCCESS;
                 }
@@ -669,7 +669,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                         lexer_advance(lexer);
                         lexer->state = STATE_START;
                         clean_string(&value);
-                        Token->ID = TOKEN_ID_STRING;
+                        Token->ID = TOKEN_STRING;
                         Token->VAL.string = value;
                         return SUCCESS;
                     }
@@ -700,7 +700,7 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
             lexer_skip_comment(lexer);
             lexer->state = STATE_START;
             if (lexer->i - char_i == 1) { // moved just one character ie no comment skipped
-                Token->ID = TOKEN_ID_DIVISION;
+                Token->ID = TOKEN_DIVISION;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
@@ -709,14 +709,14 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
         case STATE_QUESTIONMARK:
             if (lexer->c == '?') {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_NIL_COALESCING;
+                Token->ID = TOKEN_NIL_COALESCING;
                 Token->VAL.string = value;
                 lexer_advance(lexer);
                 return SUCCESS;
             }
             else {
                 lexer->state = STATE_START;
-                Token->ID = TOKEN_ID_QUESTIONMARK;
+                Token->ID = TOKEN_QUESTIONMARK;
                 Token->VAL.string = value;
                 return SUCCESS;
             }
