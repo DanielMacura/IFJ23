@@ -34,6 +34,7 @@ const char *token_names[] = {
     "EOF",
     "SEMICOLLON",
     "COMMA",
+    "TOKEN_UNDERSCORE",
 
     "INTEGER",
     "FLOAT",

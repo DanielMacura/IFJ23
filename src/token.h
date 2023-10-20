@@ -31,6 +31,7 @@ typedef enum {
     TOKEN_EOF,
     TOKEN_SEMICOLLON,
     TOKEN_COMMA,
+    TOKEN_UNDERSCORE,
 
     TOKEN_INTEGER,
     TOKEN_FLOAT,
