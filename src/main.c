@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include "token.h"
 #include "stack.h"
-#include "analyser.h"
 #include "errors.h"
 #include "chararray.h"
 
