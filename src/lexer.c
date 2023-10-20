@@ -59,37 +59,37 @@ void lexer_skip_whitespace(lexer_T *lexer) {
 int is_keyword(char *src) {
     
     if (!strcmp(src, "Double")) {
-        return KW_DOUBLE;
+        return TOKEN_KW_DOUBLE;
     }
     else if (!strcmp(src, "else")) {
-        return KW_ELSE;
+        return TOKEN_KW_ELSE;
     }
     else if (!strcmp(src, "func")) {
-        return KW_FUNC;
+        return TOKEN_KW_FUNC;
     }
     else if (!strcmp(src, "if")) {
-        return KW_IF;
+        return TOKEN_KW_IF;
     }
     else if (!strcmp(src, "Int")) {
-        return KW_INT;
+        return TOKEN_KW_INT;
     }
     else if (!strcmp(src, "let")) {
-        return KW_LET;
+        return TOKEN_KW_LET;
     }
     else if (!strcmp(src, "nil")) {
-        return KW_NIL;
+        return TOKEN_KW_NIL;
     }
     else if (!strcmp(src, "return")) {
-        return KW_RETURN;
+        return TOKEN_KW_RETURN;
     }
     else if (!strcmp(src, "String")) {
-        return KW_STRING;
+        return TOKEN_KW_STRING;
     }
     else if (!strcmp(src, "var")) {
-        return KW_VAR;
+        return TOKEN_KW_VAR;
     }
     else if (!strcmp(src, "while")) {
-        return KW_WHILE;
+        return TOKEN_KW_WHILE;
     }
     return 0;
 }
@@ -223,13 +223,33 @@ void clean_string(char **str) {
 }
 
 /**
- * @brief Get the next token from the input stream.
+ * @brief Return the next token and set is as the previous token for the next run.
+ *        this function acts as a wrapper for lexer_next_token
  * 
  * @param lexer Pointer to the lexer object.
  * @param Token Pointer to the token object to be filled with the next token.
  * @return error Returns an error code indicating success or failure.
  */
 error lexer_next_token(lexer_T *lexer, token *Token) {
+    token token_to_return;
+    int errcode = lexer_resolve_next_token(lexer, &token_to_return);
+    lexer->PreviousToken = token_to_return;
+    Token->ID = token_to_return.ID;
+    Token->VAL = token_to_return.VAL;
+
+    return errcode;
+}
+
+
+
+/**
+ * @brief Get the next token from the input stream.
+ * 
+ * @param lexer Pointer to the lexer object.
+ * @param Token Pointer to the token object to be filled with the next token.
+ * @return error Returns an error code indicating success or failure.
+ */
+error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
 
  char *value = chararray_init(0);
     unsigned int char_i; // used eg char_i=lexer->i to track number of loaded characters
@@ -384,11 +404,25 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                 lexer->state = STATE_IDENTIFIER_E;
             }
             else {
-                lexer->state = STATE_START;
-                Token->ID = TOKEN_IDENTIFIER;
-                Token->VAL.string = value;
-                
-                return SUCCESS;
+                token_ID kw = is_keyword(value);
+                if (kw) {
+                    lexer->state = STATE_START;
+                    Token->ID = kw;
+                    Token->VAL.keyword = 0;
+                    return SUCCESS;
+                }
+                else {
+                    lexer->state = STATE_START;
+                    if (lexer->PreviousToken.ID != TOKEN_KW_FUNC){
+                        Token->ID = TOKEN_VARIABLE;
+                    }
+                    else{
+                        Token->ID = TOKEN_IDENTIFIER;
+                    }
+                    Token->VAL.string = value;
+                    
+                    return SUCCESS;
+                }
             }
             break;
         
@@ -410,17 +444,21 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
                 lexer_advance(lexer);
             }
             else {
-                keyword kw = is_keyword(value);
+                token_ID kw = is_keyword(value);
                 if (kw) {
                     lexer->state = STATE_START;
-                    Token->ID = TOKEN_KEYWORD;
-                    Token->VAL.keyword = kw;
+                    Token->ID = kw;
+                    Token->VAL.keyword = 0;
                     return SUCCESS;
-
                 }
                 else {
                     lexer->state = STATE_START;
-                    Token->ID = TOKEN_IDENTIFIER;
+                    if (lexer->PreviousToken.ID != TOKEN_KW_FUNC){
+                        Token->ID = TOKEN_VARIABLE;
+                    }
+                    else{
+                        Token->ID = TOKEN_IDENTIFIER;
+                    }
                     Token->VAL.string = value;
                     
                     return SUCCESS;

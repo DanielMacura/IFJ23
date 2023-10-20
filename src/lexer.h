@@ -55,6 +55,7 @@ typedef struct lexer_struct {
     char c; /* The current character being processed by the lexer. */
     unsigned int i; /* The current index in the input string. */
     lexer_state state; /* The current state of the lexer. */
+    token PreviousToken; /* The previous token. */
 } lexer_T;
 
 
@@ -98,13 +99,23 @@ void lexer_skip_whitespace(lexer_T *lexer);
 
 
 /**
- * @brief Get the next token from the input stream.
+ * @brief Return the next token and set is as the previous token for the next run.
+ *        this function acts as a wrapper for lexer_resolve_next_token
  * 
  * @param lexer Pointer to the lexer object.
  * @param Token Pointer to the token object to be filled with the next token.
  * @return error Returns an error code indicating success or failure.
  */
 error lexer_next_token(lexer_T *lexer, token *Token);
+
+/**
+ * @brief Get the next token from the input stream.
+ * 
+ * @param lexer Pointer to the lexer object.
+ * @param Token Pointer to the token object to be filled with the next token.
+ * @return error Returns an error code indicating success or failure.
+ */
+error lexer_resolve_next_token(lexer_T *lexer, token *Token);
 
 int isoctdigit(char c);
 
