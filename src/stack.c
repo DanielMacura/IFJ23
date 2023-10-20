@@ -2,12 +2,12 @@
 
 /**
  * @brief Creates a new stack with the given size.
- * 
+ *
  * @param size The size of the stack to be created.
  * @return A pointer to the newly created stack.
  */
-Stack* createStack(int size) {
-    Stack* stack = malloc(sizeof(Stack));
+Stack *createStack(int size) {
+    Stack *stack = malloc(sizeof(Stack));
     stack->data = malloc(size * sizeof(int));
     stack->size = size;
     stack->top = -1;
@@ -17,11 +17,11 @@ Stack* createStack(int size) {
 /**
  * @brief Pushes a new integer value onto the stack.
  * If the stack is full, doubles the size of the stack.
- * 
+ *
  * @param stack The stack to push the value onto.
  * @param value The integer value to push onto the stack.
  */
-void push(Stack* stack, int value) {
+void push(Stack *stack, int value) {
     if (stack->top == stack->size - 1) {
         stack->size *= 2;
         stack->data = realloc(stack->data, stack->size * sizeof(int));
@@ -37,7 +37,7 @@ void push(Stack* stack, int value) {
  * @param stack The stack to pop from.
  * @return The value of the popped element, or -1 if the stack is empty.
  */
-int pop(Stack* stack) {
+int pop(Stack *stack) {
     if (stack->top == -1) {
         return -1;
     }
@@ -49,11 +49,11 @@ int pop(Stack* stack) {
 /**
  * @brief Returns the top element of the stack without removing it.
  * If the stack is empty, returns -1.
- * 
+ *
  * @param stack The stack to peek from.
  * @return The value of the top element, or -1 if the stack is empty.
  */
-int peek(Stack* stack) {
+int peek(Stack *stack) {
     if (stack->top == -1) {
         return -1;
     }
@@ -62,11 +62,23 @@ int peek(Stack* stack) {
 
 /**
  * @brief Frees the memory allocated for a stack.
- * 
+ *
  * @param stack The stack to free.
  */
-void freeStack(Stack* stack) {
+void freeStack(Stack *stack) {
     free(stack->data);
     free(stack);
 }
 
+/**
+ * @brief Prints the contents of the stack to stdout.
+ *
+ * @param stack The stack to print.
+ */
+void printStack(Stack *stack) {
+    printf("Stack: ");
+    for (int i = 0; i <= stack->top; i++) {
+        printf("%d ", stack->data[i]);
+    }
+    printf("\n");
+}
