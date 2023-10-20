@@ -430,11 +430,13 @@ error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             if (isalnum(lexer->c) || lexer->c == '_') {
                     chararray_append(&value, lexer->c);
                     lexer_advance(lexer);
-
                 }
             else {
+                    lexer->state = STATE_START;
+                    Token->ID = TOKEN_UNDERSCORE;
+                    Token->VAL.string = value;
                     lexer_advance(lexer);
-                    return LEXICAL_ERR;
+                    return SUCCESS;
                 }
             break;
 
