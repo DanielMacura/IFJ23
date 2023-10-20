@@ -4,55 +4,52 @@
 
 
 typedef enum {
-    TOKEN_EOF,               // 0
-    TOKEN_EOL,               // 1
-    TOKEN_IDENTIFIER,        // 2 functions
-    TOKEN_VARIABLE,          // 3 variables
-    TOKEN_INTEGER,           // 4
-    TOKEN_FLOAT,             // 5
-    TOKEN_STRING,            // 6
-    TOKEN_KEYWORD,           // 7
+    TOKEN__EPSILON,
+    TOKEN_KW_FUNC,
+    TOKEN_IDENTIFIER,
+    TOKEN_LBRACKET,
+    TOKEN_RBRACKET,
+    TOKEN_ARROW,
+    TOKEN_LCURLYBRACKET,
+    TOKEN_RCURLYBRACKET,
+    TOKEN_KW_IF,
+    EXPRESSION,     //not included in ll1 table
+    TOKEN_KW_ELSE,
+    TOKEN_KW_WHILE,
+    TOKEN_KW_RETURN,
+    TOKEN_KW_VAR,
+    TOKEN_VARIABLE,
+    TOKEN_KW_LET,
+    TOKEN_COLON,
+    TOKEN_EQUALS,
+    TOKEN_QUESTIONMARK,
+    TOKEN_KW_INT,
+    TOKEN_KW_DOUBLE,
+    TOKEN_KW_STRING,
+    TOKEN_KW_NIL,
+    TOKEN_EOL,
+    TOKEN_EOF,
+    TOKEN_SEMICOLLON,
+    TOKEN_COMMA,
 
-    TOKEN_PLUS,              // 8    + arithmetic and concatenation
-    TOKEN_MINUS,             // 9    -
-    TOKEN_EQUALS,            // 10   =
-    TOKEN_DOUBLE_EQUALS,     // 11   ==
-    TOKEN_NOT_EQUALS,        // 12   !=
-    TOKEN_GT,                // 13   >
-    TOKEN_LT,                // 14   <
-    TOKEN_GTE,               // 15   >=
-    TOKEN_LTE,               // 16   <=
-    TOKEN_ARROW,             // 17   ->
-    TOKEN_QUESTIONMARK,      // 18   ?
-    TOKEN_NIL_COALESCING,    // 19   ??
-    TOKEN_EXCLAMATIONMARK,   // 20   !
-    TOKEN_DIVISION,          // 21   /
-    TOKEN_MULTIPLICATION,    // 22   *
-    TOKEN_COMMA,             // 23   ,
-    TOKEN_SEMICOLLON,        // 24   ;
-    TOKEN_COLON,             // 25   :
-
-    TOKEN_LBRACKET,          // 26   (
-    TOKEN_RBRACKET,          // 27   )
-    TOKEN_LCURLYBRACKET,     // 28   {
-    TOKEN_RCURLYBRACKET,     // 29   }
-
-    TOKEN_KW_DOUBLE,         // 30
-    TOKEN_KW_ELSE,           // 31
-    TOKEN_KW_FUNC,           // 32
-    TOKEN_KW_IF,             // 33
-    TOKEN_KW_INT,            // 34
-    TOKEN_KW_LET,            // 35
-    TOKEN_KW_NIL,            // 36
-    TOKEN_KW_RETURN,         // 37
-    TOKEN_KW_STRING,         // 38
-    TOKEN_KW_VAR,            // 39
-    TOKEN_KW_WHILE,          // 40
-
-
+    TOKEN_INTEGER,
+    TOKEN_FLOAT,
+    TOKEN_STRING,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_DOUBLE_EQUALS,
+    TOKEN_NOT_EQUALS,
+    TOKEN_GT,          
+    TOKEN_LT,            
+    TOKEN_GTE,             
+    TOKEN_LTE,    
+    TOKEN_NIL_COALESCING,  
+    TOKEN_EXCLAMATIONMARK,
+    TOKEN_DIVISION,
+    TOKEN_MULTIPLICATION     
 } token_ID;
 
-
+extern const char *token_names[];
 
 typedef enum {
     KW_NO_KW,
