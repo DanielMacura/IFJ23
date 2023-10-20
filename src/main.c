@@ -3,56 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lexer.h"
+#include <unistd.h>
 #include "token.h"
+#include "stack.h"
+#include "analyser.h"
+#include "errors.h"
+#include "chararray.h"
+
 
 /**
  * @brief Main function of the compiler
  * 
  * @return int 
  */
-const char *token_names[] = {
-        "EOF",
-        "EOL",
-        "IDENTIFIER",
-        "VARIABLE",
-        "INTEGER",
-        "FLOAT",
-        "STRING",
-        "KEYWORD",
-        "PLUS",
-        "MINUS",
-        "EQUALS",
-        "DOUBLE_EQUALS",
-        "NOT_EQUALS",
-        "GT",
-        "LT",
-        "GTE",
-        "LTE",
-        "ARROW",
-        "QUESTIONMARK",
-        "NIL_COALESCING",
-        "EXCLAMATIONMARK",
-        "DIVISION",
-        "MULTIPLICATION",
-        "COMMA",
-        "SEMICOLLON",
-        "COLON",
-        "LBRACKET",
-        "RBRACKET",
-        "LCURLYBRACKET",
-        "RCURLYBRACKET",
-        "KW_DOUBLE",
-        "KW_ELSE",
-        "KW_FUNC",
-        "KW_IF",
-        "KW_INT",
-        "KW_LET",
-        "KW_NIL",
-        "KW_RETURN",
-        "KW_STRING",
-        "KW_VAR",
-        "KW_WHILE"
-    };
+
 int main(int argc, char **argv) {
     lexer_T *lexer = lexer_init();
     token *Token = malloc(sizeof(token));
