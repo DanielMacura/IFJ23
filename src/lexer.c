@@ -313,11 +313,8 @@ error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 return SUCCESS;
             }
             else if (lexer->c == '-') {
-                lexer->state = STATE_START;
-                Token->ID = TOKEN_MINUS;
-                Token->VAL.string = value;
+                lexer->state = STATE_MINUS;
                 lexer_advance(lexer);
-                return SUCCESS;
             }
             else if (lexer->c == '*') {
                 lexer->state = STATE_START;
@@ -771,6 +768,20 @@ error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 return SYNTAX_ERR; // syntactic error
             }
             break;
+        case STATE_MINUS:
+            if(lexer->c == '>'){
+                lexer->state = STATE_START;
+                Token->ID = TOKEN_ARROW;
+                Token->VAL.string = value;
+                lexer_advance(lexer);
+                return SUCCESS;
+            }
+            else{
+                lexer->state = STATE_START;
+                Token->ID = TOKEN_MINUS;
+                Token->VAL.string = value;
+                return SUCCESS;
+            }
         }
     }
 }

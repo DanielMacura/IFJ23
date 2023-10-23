@@ -35,6 +35,7 @@ typedef enum{
     STATE_SLASH,
     STATE_QUESTIONMARK,
     STATE_CLOSING_TAG,
+    STATE_MINUS,
 
     STATE_GT_E,      //greater than
     STATE_ST_E,      //smaller than
