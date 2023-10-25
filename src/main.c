@@ -46,4 +46,8 @@ int main(int argc, char **argv) {
             }
         } while (Token->ID != TOKEN_EOF);
     }
+    else if(argc ==2 && strcmp(argv[1], "-l") == 0){
+        printf("Lexical analysis\n");
+        runSyntax(lexer);
+    }
 } 
