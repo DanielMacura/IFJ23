@@ -4,25 +4,28 @@
 // http://www.fit.vutbr.cz/~ikocman/llkptg/ pre tvorbu ll tabulky a overenia stupna gramatiky
 //
 //--------------------//
-%token TOKEN_EOF TOKEN_EOL TOKEN_IDENTIFIER TOKEN_VARIABLE TOKEN_EQUALS TOKEN_ARROW TOKEN_QUESTIONMARK TOKEN_COMMA TOKEN_SEMICOLLON TOKEN_COLON TOKEN_LBRACKET TOKEN_RBRACKET TOKEN_LCURLYBRACKET TOKEN_RCURLYBRACKET TOKEN_KW_DOUBLE TOKEN_KW_ELSE TOKEN_KW_FUNC TOKEN_KW_IF TOKEN_KW_INT TOKEN_KW_LET TOKEN_KW_NIL TOKEN_KW_RETURN TOKEN_KW_STRING TOKEN_KW_VAR TOKEN_KW_WHILE EXPRESSION
+%token TOKEN_KW_FUNC TOKEN_IDENTIFIER TOKEN_LBRACKET TOKEN_RBRACKET TOKEN_ARROW TOKEN_LCURLYBRACKET TOKEN_RCURLYBRACKET TOKEN_KW_IF EXPRESSION TOKEN_KW_ELSE TOKEN_KW_WHILE TOKEN_KW_RETURN TOKEN_KW_VAR TOKEN_VARIABLE TOKEN_KW_LET TOKEN_COLON TOKEN_EQUALS TOKEN_QUESTIONMARK TOKEN_KW_INT TOKEN_KW_DOUBLE TOKEN_KW_STRING TOKEN_KW_NIL TOKEN_EOL TOKEN_EOF TOKEN_SEMICOLLON TOKEN_COMMA   TOKEN_UNDERSCORE
 %%
 
 body : /*eps*/
-| TOKEN_KW_FUNC TOKEN_IDENTIFIER TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
-| TOKEN_KW_IF EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
-| TOKEN_KW_WHILE EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
+| TOKEN_KW_FUNC TOKEN_IDENTIFIER optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+| TOKEN_KW_IF EXPRESSION optional_enter TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+| TOKEN_KW_WHILE EXPRESSION optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 | TOKEN_KW_RETURN return end_of_command body
 | function_call end_of_command body
 | definition end_of_command body
 | assignment end_of_command body;
 
 nested_body : /*eps*/                                                           // Avoids nested function definion 
-| TOKEN_KW_IF EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET nested_body
-| TOKEN_KW_WHILE EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET nested_body
+| TOKEN_KW_IF EXPRESSION optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
+| TOKEN_KW_WHILE EXPRESSION optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
 | TOKEN_KW_RETURN return end_of_command nested_body
 | function_call end_of_command nested_body
 | definition end_of_command nested_body
 | assignment end_of_command nested_body;
+
+optional_enter : /*eps*/
+| TOKEN_EOL optional_enter;
 
 definition : TOKEN_KW_VAR TOKEN_VARIABLE definition_prime
 | TOKEN_KW_LET TOKEN_VARIABLE definition_prime;
@@ -52,16 +55,19 @@ c_type : TOKEN_KW_INT
 
 end_of_command : TOKEN_EOL
 | TOKEN_EOF 
-| TOKEN_SEMICOLLON end_fo_command_prime;
+| TOKEN_SEMICOLLON end_of_command_prime;
 
-end_fo_command_prime : /*eps*/
+end_of_command_prime : /*eps*/
 | TOKEN_EOL;
 
 parameters : /*eps*/
-| TOKEN_VARIABLE TOKEN_VARIABLE TOKEN_COLON type parameters_prime;
+| discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type parameters_prime;
 
 parameters_prime : /*eps*/
-| TOKEN_COMMA TOKEN_VARIABLE TOKEN_VARIABLE TOKEN_COLON type parameters_prime;
+| TOKEN_COMMA discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type parameters_prime;
+
+discard_parameter_name : TOKEN_VARIABLE
+| TOKEN_UNDERSCORE;
 
 arguments : /*eps*/
 | TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
@@ -70,8 +76,7 @@ arguments : /*eps*/
 arguments_prime : /*eps*/
 | TOKEN_COMMA arguments_prime_prime;
 
-arguments_prime_prime :
-| TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
+arguments_prime_prime : TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
 | EXPRESSION arguments_prime;
 
 return : /*eps*/
