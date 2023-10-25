@@ -77,7 +77,7 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
         }
         else if (follow_up == ERROR_IF_MISSING) {
             //printf("Symbol not inf symbol table, raising error...\n");
-            my_exit(56);
+            //TODO: my_exit(56);
         }
         else {
             //printf("INTERNAL ERR: get_symbol_from_frame: unknown follow_up resolution %d\n", follow_up);
@@ -126,7 +126,7 @@ SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found
 
     if (follow_up == ERROR_IF_MISSING) {
         *found_frame_type = -1;
-        my_exit(56);
+        //TODO: my_exit(56);
     }
 
     if (follow_up == CREATE_IF_MISSING) {
@@ -165,7 +165,7 @@ int create_frame() {
 int push_frame() {
     if (!exists_temp_frame) {
         //printf("push_frame: no temp frame available\n");
-        my_exit(55);
+        //TODO: my_exit(55);
     }
 
     local_frames[frame_stack_size] = temp_frame;
@@ -178,7 +178,7 @@ int pop_frame() {
     // TODO: Free temp if exists
     if (frame_stack_size < 1) {
         //printf("pop_frame: no local frame available\n");
-        my_exit(55);
+        //TODO: my_exit(55);
     }
 
     temp_frame = local_frames[frame_stack_size - 1];
@@ -262,7 +262,7 @@ void bst_delete(bst_node_t **tree, char* key) {
     bst_delete(&(*tree)->left, key);
   } else if (strcmp(key, (*tree)->key) > 0) {
     bst_delete(&(*tree)->right, key);
-  } else if ((*tree)->left == NULL && (*tree)->right == NULL) {   //nema podstromy
+  } else if ((*tree)->left == NULL && (*tree)->right == NULL) {   //nema podstro //TODO: my
     free((*tree));
     (*tree) = NULL;
   } else if ((*tree)->left != NULL && (*tree)->right == NULL) {   //ma lavy podstrom
@@ -273,7 +273,7 @@ void bst_delete(bst_node_t **tree, char* key) {
     bst_node_t *tbd = (*tree);
     *tree = (*tree)->right;
     free(tbd);
-  } else {    //ma oba podstromy
+  } else {    //ma oba podstro//TODO:  my
     bst_replace_by_rightmost((*tree), &((*tree)->left));
   }
 }
