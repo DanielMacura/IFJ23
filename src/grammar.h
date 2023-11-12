@@ -18,63 +18,89 @@
  * 
  */
 extern int Prod0[] ;                 // ε
-extern int Prod1[] ;                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
-extern int Prod2[] ;                 // TOKEN_KW_IF EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
-extern int Prod3[] ;                 // TOKEN_KW_WHILE EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET body
+extern int Prod1[] ;                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+extern int Prod2[] ;                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+extern int Prod3[] ;                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 extern int Prod4[] ;                 // TOKEN_KW_RETURN return end_of_command body
 extern int Prod5[] ;                 // function_call end_of_command body
 extern int Prod6[] ;                 // definition end_of_command body
 extern int Prod7[] ;                 // assignment end_of_command body
 extern int Prod8[] ;                 // ε
-extern int Prod9[] ;                 // TOKEN_KW_IF EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET nested_body
-extern int Prod10[] ;                 // TOKEN_KW_WHILE EXPRESSION TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET nested_body
+extern int Prod9[] ;                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
+extern int Prod10[] ;                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
 extern int Prod11[] ;                 // TOKEN_KW_RETURN return end_of_command nested_body
 extern int Prod12[] ;                 // function_call end_of_command nested_body
 extern int Prod13[] ;                 // definition end_of_command nested_body
 extern int Prod14[] ;                 // assignment end_of_command nested_body
-extern int Prod15[] ;                 // TOKEN_KW_VAR TOKEN_VARIABLE definition_prime
-extern int Prod16[] ;                 // TOKEN_KW_LET TOKEN_VARIABLE definition_prime
-extern int Prod17[] ;                 // TOKEN_COLON type definition_prime_prime
-extern int Prod18[] ;                 // TOKEN_EQUALS assignment_prime
-extern int Prod19[] ;                 // ε
+extern int Prod15[] ;                 // ε
+extern int Prod16[] ;                 // TOKEN_EOL optional_enter
+extern int Prod17[] ;                 // TOKEN_KW_VAR TOKEN_VARIABLE definition_prime
+extern int Prod18[] ;                 // TOKEN_KW_LET TOKEN_VARIABLE definition_prime
+extern int Prod19[] ;                 // TOKEN_COLON type definition_prime_prime
 extern int Prod20[] ;                 // TOKEN_EQUALS assignment_prime
-extern int Prod21[] ;                 // TOKEN_VARIABLE TOKEN_EQUALS assignment_prime
-extern int Prod22[] ;                 // EXPRESSION
-extern int Prod23[] ;                 // function_call
-extern int Prod24[] ;                 // TOKEN_IDENTIFIER TOKEN_LBRACKET arguments TOKEN_RBRACKET
-extern int Prod25[] ;                 // c_type postfix
-extern int Prod26[] ;                 // ε
-extern int Prod27[] ;                 // TOKEN_QUESTIONMARK
-extern int Prod28[] ;                 // TOKEN_KW_extern int
-extern int Prod29[] ;                 // TOKEN_KW_DOUBLE
-extern int Prod30[] ;                 // TOKEN_KW_STRING
-extern int Prod31[] ;                 // TOKEN_KW_NIL
-extern int Prod32[] ;                 // TOKEN_EOL
-extern int Prod33[] ;                 // TOKEN_EOF
-extern int Prod34[] ;                 // TOKEN_SEMICOLLON end_fo_command_prime
-extern int Prod35[] ;                 // ε
-extern int Prod36[] ;                 // TOKEN_EOL
+extern int Prod21[] ;                 // ε
+extern int Prod22[] ;                 // TOKEN_EQUALS assignment_prime
+extern int Prod23[] ;                 // TOKEN_VARIABLE TOKEN_EQUALS assignment_prime
+extern int Prod24[] ;                 // expression
+extern int Prod25[] ;                 // function_call
+extern int Prod26[] ;                 // TOKEN_IDENTIFIER TOKEN_LBRACKET arguments TOKEN_RBRACKET
+extern int Prod27[] ;                 // c_type postfix
+extern int Prod28[] ;                 // ε
+extern int Prod29[] ;                 // TOKEN_QUESTIONMARK
+extern int Prod30[] ;                 // TOKEN_KW_INT
+extern int Prod31[] ;                 // TOKEN_KW_DOUBLE
+extern int Prod32[] ;                 // TOKEN_KW_STRING
+extern int Prod33[] ;                 // TOKEN_KW_NIL
+extern int Prod34[] ;                 // TOKEN_EOL
+extern int Prod35[] ;                 // TOKEN_EOF
+extern int Prod36[] ;                 // TOKEN_SEMICOLLON end_of_command_prime
 extern int Prod37[] ;                 // ε
-extern int Prod38[] ;                 // TOKEN_VARIABLE TOKEN_VARIABLE TOKEN_COLON type parameters_prime
+extern int Prod38[] ;                 // TOKEN_EOL
 extern int Prod39[] ;                 // ε
-extern int Prod40[] ;                 // TOKEN_COMMA TOKEN_VARIABLE TOKEN_VARIABLE TOKEN_COLON type parameters_prime
+extern int Prod40[] ;                 // discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type parameters_prime
 extern int Prod41[] ;                 // ε
-extern int Prod42[] ;                 // TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
-extern int Prod43[] ;                 // EXPRESSION arguments_prime
-extern int Prod44[] ;                 // ε
-extern int Prod45[] ;                 // TOKEN_COMMA arguments_prime_prime
-extern int Prod46[] ;                 // ε
-extern int Prod47[] ;                 // TOKEN_VARIABLE TOKEN_COLON EXPRESSION arguments_prime
-extern int Prod48[] ;                 // EXPRESSION arguments_prime
-extern int Prod49[] ;                 // ε
-extern int Prod50[] ;                 // EXPRESSION
-extern int Prod51[] ;                 // function_call
-extern int Prod52[] ;                 // TOKEN_IDENTIFIER TOKEN_LBRACKET arguments TOKEN_RBRACKET
-extern int Prod53[] ;                 // c_type postfix
-extern int Prod54[] ;                 // ε
+extern int Prod42[] ;                 // TOKEN_COMMA discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type parameters_prime
+extern int Prod43[] ;                 // TOKEN_VARIABLE
+extern int Prod44[] ;                 // TOKEN_UNDERSCORE
+extern int Prod45[] ;                 // ε
+extern int Prod46[] ;                 // TOKEN_VARIABLE arguments_var
+extern int Prod47[] ;                 // literal arguments_lit
+extern int Prod48[] ;                 // TOKEN_VARIABLE arguments_var
+extern int Prod49[] ;                 // literal arguments_lit
+extern int Prod50[] ;                 // ε
+extern int Prod51[] ;                 // TOKEN_COMMA arguments_prime
+extern int Prod52[] ;                 // TOKEN_COLON literal arguments
+extern int Prod53[] ;                 // ε
+extern int Prod54[] ;                 // TOKEN_COMMA arguments_prime
+extern int Prod55[] ;                 // ε
+extern int Prod56[] ;                 // expression
+extern int Prod57[] ;                 // function_call
+extern int Prod58[] ;                 // TOKEN_INTEGER
+extern int Prod59[] ;                 // TOKEN_FLOAT
+extern int Prod60[] ;                 // TOKEN_STRING
+extern int Prod61[] ;                 // TOKEN_KW_NIL
+extern int Prod62[] ;                 // TOKEN_VARIABLE
+extern int Prod63[] ;                 // TOKEN_INTEGER
+extern int Prod64[] ;                 // TOKEN_FLOAT
+extern int Prod65[] ;                 // TOKEN_STRING
+extern int Prod66[] ;                 // TOKEN_PLUS
+extern int Prod67[] ;                 // TOKEN_MINUS
+extern int Prod68[] ;                 // TOKEN_DOUBLE_EQUALS
+extern int Prod69[] ;                 // TOKEN_NOT_EQUALS
+extern int Prod70[] ;                 // TOKEN_GT
+extern int Prod71[] ;                 // TOKEN_LT
+extern int Prod72[] ;                 // TOKEN_GTE
+extern int Prod73[] ;                 // TOKEN_LTE
+extern int Prod74[] ;                 // TOKEN_NIL_COALESCING
+extern int Prod75[] ;                 // TOKEN_DIVISION
+extern int Prod76[] ;                 // TOKEN_MULTIPLICATION
+extern int Prod77[] ;                 // TOKEN_LBRACKET
+extern int Prod78[] ;                 // TOKEN_RBRACKET
+
+
 
 extern int *productions[];
 
-extern int table[21][29];
+extern int table[24][42];
 
 #endif
