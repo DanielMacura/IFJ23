@@ -1,6 +1,6 @@
 #include "analyser.h"
 
-char* nonterminals[20] = {"body","parameters","type","nested_body","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_fo_command_prime","arguments","definition_prime","assignment_prime","arguments_prime","definition_prime_prime","arguments_prime_prime"};
+char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
 
 int runSyntax(lexer_T  *lexer){
     Stack* stack = createStack(100);
@@ -28,7 +28,7 @@ int runSyntax(lexer_T  *lexer){
             printf("Push: %d\n", what_to_push);
             if (what_to_push == -1)
             { // syntax error
-                printf("Error: %d\n", popped);
+                printf("Syntax error: %d\n", popped);
                 return 1;
             }
             else{                                   // push the production to the stack
@@ -55,7 +55,7 @@ int runSyntax(lexer_T  *lexer){
             }
         }
         else{
-            printf("Error: %d\n", popped);          // unknown error
+            printf("Unknown error: %d\n", popped);          // unknown error
             return 1;
 
         }

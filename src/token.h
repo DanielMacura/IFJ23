@@ -13,10 +13,10 @@ typedef enum {
     TOKEN_LCURLYBRACKET,
     TOKEN_RCURLYBRACKET,
     TOKEN_KW_IF,
-    EXPRESSION,     //not included in ll1 table
     TOKEN_KW_ELSE,
     TOKEN_KW_WHILE,
     TOKEN_KW_RETURN,
+    TOKEN_EOL,
     TOKEN_KW_VAR,
     TOKEN_VARIABLE,
     TOKEN_KW_LET,
@@ -27,7 +27,6 @@ typedef enum {
     TOKEN_KW_DOUBLE,
     TOKEN_KW_STRING,
     TOKEN_KW_NIL,
-    TOKEN_EOL,
     TOKEN_EOF,
     TOKEN_SEMICOLLON,
     TOKEN_COMMA,
@@ -45,9 +44,9 @@ typedef enum {
     TOKEN_GTE,             
     TOKEN_LTE,    
     TOKEN_NIL_COALESCING,  
-    TOKEN_EXCLAMATIONMARK,
     TOKEN_DIVISION,
-    TOKEN_MULTIPLICATION     
+    TOKEN_MULTIPLICATION,     
+    TOKEN_EXCLAMATIONMARK
 } token_ID;
 
 extern const char *token_names[];

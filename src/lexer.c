@@ -410,10 +410,12 @@ error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 }
                 else {
                     lexer->state = STATE_START;
-                    if (lexer->PreviousToken.ID != TOKEN_KW_FUNC){
+
+
+                    if (lexer->PreviousToken.ID != TOKEN_KW_FUNC && lexer->c != '('){
                         Token->ID = TOKEN_VARIABLE;
                     }
-                    else{
+                    else if (lexer->PreviousToken.ID == TOKEN_KW_FUNC || lexer->c == '('){
                         Token->ID = TOKEN_IDENTIFIER;
                     }
                     Token->VAL.string = value;
@@ -452,10 +454,12 @@ error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 }
                 else {
                     lexer->state = STATE_START;
-                    if (lexer->PreviousToken.ID != TOKEN_KW_FUNC){
+
+                    if (lexer->PreviousToken.ID != TOKEN_KW_FUNC && lexer->c != '(')
+                    {
                         Token->ID = TOKEN_VARIABLE;
                     }
-                    else{
+                    else if (lexer->PreviousToken.ID == TOKEN_KW_FUNC || lexer->c == '('){
                         Token->ID = TOKEN_IDENTIFIER;
                     }
                     Token->VAL.string = value;
