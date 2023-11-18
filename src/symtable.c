@@ -71,19 +71,20 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
             //printf("Get symbol %s from:\n", symbol);
             return data;
         }
-        else if (follow_up == IGNORE_IF_MISSING) {
-            //printf("Symbol not in symbol table, ignoring...\n");
-            return 56;
-        }
+        // else if (follow_up == IGNORE_IF_MISSING) {                     //FIXME: //TODO: warning: returning ‘int’ from a function with return type ‘SymbolData *’ makes pointer from integer without a cast [-Wint-conversion]
+        //     //printf("Symbol not in symbol table, ignoring...\n");
+        //     return 56;
+        // }
         else if (follow_up == ERROR_IF_MISSING) {
             //printf("Symbol not inf symbol table, raising error...\n");
             //TODO: my_exit(56);
         }
         else {
             //printf("INTERNAL ERR: get_symbol_from_frame: unknown follow_up resolution %d\n", follow_up);
-            exit(-1);
+            exit(-1);                                                                       //FIXME: //TODO: treba pekne sa vraj vratit, nie exit koli freeom v maine
         }
 	}
+  return NULL;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
 }
 
 SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type) {
@@ -160,6 +161,8 @@ int create_frame() {
     // TODO: Free temp if exists
     exists_temp_frame = 1;
     bst_init(&temp_frame);
+    return 0;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
+
 }
 
 int push_frame() {
@@ -172,6 +175,7 @@ int push_frame() {
     exists_temp_frame = 0;
     bst_init(&temp_frame);
     frame_stack_size++;
+    return 0;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
 }
 
 int pop_frame() {
@@ -184,6 +188,8 @@ int pop_frame() {
     temp_frame = local_frames[frame_stack_size - 1];
     frame_stack_size--;
     exists_temp_frame = 1;
+    return 0;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
+
 }
 
 void bst_init(bst_node_t **tree) {
