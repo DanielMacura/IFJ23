@@ -8,17 +8,21 @@
 #include "stack.h"
 #include "errors.h"
 #include "chararray.h"
+#include "DLL.h"
+#include "analyser.h"
 
+error ERROR = SUCCESS;
 
 /**
  * @brief Main function of the compiler
  * 
  * @return int 
  */
-
 int main(int argc, char **argv) {
     lexer_T *lexer = lexer_init();
     token *Token = malloc(sizeof(token));
+
+    DLL *dll = createDLL();
 
     // Lexer tests, generates tokens from the input
     if (argc == 2 && strcmp(argv[1], "-t") == 0)
@@ -48,6 +52,6 @@ int main(int argc, char **argv) {
     }
     else if(argc ==2 && strcmp(argv[1], "-l") == 0){
         printf("Lexical analysis\n");
-        runSyntax(lexer);
+        runSyntax(lexer, dll);
     }
 } 
