@@ -96,6 +96,7 @@ extern int Prod75[] ;                 // TOKEN_DIVISION
 extern int Prod76[] ;                 // TOKEN_MULTIPLICATION
 extern int Prod77[] ;                 // TOKEN_LBRACKET
 extern int Prod78[] ;                 // TOKEN_RBRACKET
+extern int Prod79[] ;                 // TOKEN_ARROW
 
 
 
