@@ -13,6 +13,6 @@ typedef enum error_code {
     TYPE_ERR,               // 8 - semantická chyba odvození typu – typ proměnné nebo parametru není uveden a nelze odvodit od použitého výrazu
     SEM_OTHER_ERR,          // 9 - ostatni semanticke chyby
     INTERNAL_ERR = 99,      // 99 interna chyba prekladace (alokace)
-} error;
+} error_code;
 
 #endif

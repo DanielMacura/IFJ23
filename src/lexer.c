@@ -228,9 +228,9 @@ void clean_string(char **str) {
  * 
  * @param lexer Pointer to the lexer object.
  * @param Token Pointer to the token object to be filled with the next token.
- * @return error Returns an error code indicating success or failure.
+ * @return error_code Returns an error code indicating success or failure.
  */
-error lexer_next_token(lexer_T *lexer, token *Token) {
+error_code lexer_next_token(lexer_T *lexer, token *Token) {
     token token_to_return;
     int errcode = lexer_resolve_next_token(lexer, &token_to_return);
     lexer->PreviousToken = token_to_return;
@@ -247,9 +247,9 @@ error lexer_next_token(lexer_T *lexer, token *Token) {
  * 
  * @param lexer Pointer to the lexer object.
  * @param Token Pointer to the token object to be filled with the next token.
- * @return error Returns an error code indicating success or failure.
+ * @return error_code Returns an error code indicating success or failure.
  */
-error lexer_resolve_next_token(lexer_T *lexer, token *Token) {
+error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
 
  char *value = chararray_init(0);
     unsigned int char_i; // used eg char_i=lexer->i to track number of loaded characters

@@ -43,7 +43,7 @@ typedef enum {
     TOKEN_LT,            
     TOKEN_GTE,             
     TOKEN_LTE,    
-    TOKEN_NIL_COALESCING,  
+    TOKEN_NIL_COALESCING,
     TOKEN_DIVISION,
     TOKEN_MULTIPLICATION,     
     TOKEN_EXCLAMATIONMARK

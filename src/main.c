@@ -11,7 +11,7 @@
 #include "DLL.h"
 #include "analyser.h"
 
-error ERROR = SUCCESS;
+error_code ERROR = SUCCESS;
 
 /**
  * @brief Main function of the compiler

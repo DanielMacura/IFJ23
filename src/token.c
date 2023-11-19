@@ -48,6 +48,6 @@ const char *token_names[] = {
     "LTE",    
     "NIL_COALESCING",  
     "DIVISION",
-    "MULTIPLICATION"
+    "MULTIPLICATION",
     "EXCLAMATIONMARK",
 };
