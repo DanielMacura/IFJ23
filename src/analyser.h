@@ -15,6 +15,8 @@
 #include "token.h"
 #include "stack.h"
 #include "DLL.h"
+#include "errors.h"
+#include "expressions.h"
 
 extern int table[24][42] ;
 extern int *productions[];
