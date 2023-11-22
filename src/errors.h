@@ -15,4 +15,13 @@ typedef enum error_code {
     INTERNAL_ERR = 99,      // 99 interna chyba prekladace (alokace)
 } error_code;
 
+/**
+ * @brief Sets the error code to the given value. Won't overwrite an error code that is already set.
+ * 
+ */
+#define set_error(error)    \
+    ;                       \
+    if (ERROR == SUCCESS) { \
+        ERROR = error;      \
+    }
 #endif
