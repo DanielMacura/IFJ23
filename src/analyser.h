@@ -17,8 +17,10 @@
 #include "DLL.h"
 #include "errors.h"
 #include "expressions.h"
+#include "generator.h"
+#include "verbose.h"
 
-extern int table[24][42] ;
+extern int table[24][43] ;
 extern int *productions[];
 
 /**

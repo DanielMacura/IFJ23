@@ -21,7 +21,7 @@ error_code ERROR = SUCCESS;
 int main(int argc, char **argv) {
     lexer_T *lexer = lexer_init();
     token *Token = malloc(sizeof(token));
-
+    setVerbose(false);
     DLL *dll = createDLL();
 
     // Lexer tests, generates tokens from the input
@@ -54,4 +54,8 @@ int main(int argc, char **argv) {
         printf("Lexical analysis\n");
         runSyntax(lexer, dll);
     }
+    else{
+        runSyntax(lexer, dll);
+    }
+        return ERROR;
 } 
