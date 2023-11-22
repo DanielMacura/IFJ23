@@ -7,7 +7,7 @@
  * @authors xmacur09
  */
 
-#include "analyser.h"
+#include "analyzer.h"
 
 extern error_code ERROR;
 char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};

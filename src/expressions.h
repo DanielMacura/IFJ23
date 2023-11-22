@@ -7,7 +7,7 @@
 #include "symtable.h"
 #include "token.h"
 #include "errors.h"
-#include "analyser.h"
+#include "analyzer.h"
 #include "types.h"
 #include "generator.h"
 #include "verbose.h"

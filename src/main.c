@@ -9,7 +9,7 @@
 #include "errors.h"
 #include "chararray.h"
 #include "DLL.h"
-#include "analyser.h"
+#include "analyzer.h"
 
 error_code ERROR = SUCCESS;
 
