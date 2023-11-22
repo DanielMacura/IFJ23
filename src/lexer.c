@@ -1,5 +1,7 @@
 #include "lexer.h"
 
+extern error_code ERROR;
+
 
 /**
  * @brief Initializes a new lexer instance.
@@ -251,7 +253,7 @@ error_code lexer_next_token(lexer_T *lexer, token *Token) {
  */
 error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
 
- char *value = chararray_init(0);
+    char *value = chararray_init(0);
     unsigned int char_i; // used eg char_i=lexer->i to track number of loaded characters
 
     while (1) {
@@ -390,6 +392,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
 
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
@@ -502,6 +505,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
@@ -537,6 +541,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
@@ -549,6 +554,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
@@ -579,6 +585,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
@@ -591,6 +598,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
@@ -630,6 +638,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             }
             else {
                 lexer_advance(lexer);
+                set_error(LEXICAL_ERR);
                 return LEXICAL_ERR;
             }
             break;
