@@ -1,3 +1,13 @@
+/**
+ * @file stack.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for stack.c
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef STACK_H
 #define STACK_H
 

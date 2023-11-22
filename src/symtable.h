@@ -1,3 +1,13 @@
+/**
+ * @file symtable.h
+ * @author Samuel Lenčéš (xlogin00@vutbr.cz)	//TODO zmen si login Samo
+ * @brief Header file for symtable.c
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef SYMTABLE
 #define SYMTABLE
 #include "error.h"

@@ -1,3 +1,13 @@
+/**
+ * @file stack.c
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of stack, used in table parser
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "stack.h"
 
 /**

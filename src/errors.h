@@ -1,3 +1,13 @@
+/**
+ * @file errors.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for error codes
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef ERRORS_H
 #define ERRORS_H
 

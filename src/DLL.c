@@ -1,12 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file DLL.c
- * @brief Implementation of doubly linked list
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of doubly linked list used for storing tokens
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
-
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "DLL.h"
 #include <stdio.h>
 

@@ -1,11 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file generator.h
- * @brief Generator header file
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for generator.c
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef GENERATOR_H
 #define GENERATOR_H
 #include "types.h"

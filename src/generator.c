@@ -1,11 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file generator.c
- * @brief Implementation of code generator
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of generator, used in actions and expressions
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "generator.h"
 
 void beginGenerator(){

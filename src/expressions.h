@@ -1,4 +1,13 @@
-
+/**
+ * @file expressions.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for expressions.c
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef EXPRESSIONS_H
 #define EXPRESSIONS_H
 

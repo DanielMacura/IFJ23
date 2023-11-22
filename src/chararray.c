@@ -1,11 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file chararray.c
- * @brief Implementation of dynamic char array
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of chararray used for dynamic string allocation
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

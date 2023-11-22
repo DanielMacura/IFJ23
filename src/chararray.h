@@ -1,11 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file chararray.h
- * @brief Iterface for dynamic char array
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for chararray.c
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #ifndef CHARARRAY_H
 #define CHARARRAY_H

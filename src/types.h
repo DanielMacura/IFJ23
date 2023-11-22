@@ -1,3 +1,13 @@
+/**
+ * @file types.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for storing types to avoid circular dependencies
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef TYPES_H
 #define TYPES_H
 

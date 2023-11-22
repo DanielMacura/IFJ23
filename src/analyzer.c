@@ -1,10 +1,12 @@
 /**
- * Project: IFJ23 Compiler
- *
- * @file analysis.c
- * @brief Implementation of syntax analysis
- *
- * @authors xmacur09
+ * @file analyzer.c
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of top-down syntax analyzer
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
  */
 
 #include "analyzer.h"

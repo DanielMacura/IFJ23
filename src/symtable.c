@@ -1,3 +1,13 @@
+/**
+ * @file symtable.c
+ * @author Samuel Lenčéš (xlogin00@vutbr.cz)	//TODO zmen si login Samo
+ * @brief Implementation of symtable for storing variables and functions
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "symtable.h"
 #include <stdio.h>
 #include <stdlib.h>

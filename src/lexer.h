@@ -1,3 +1,13 @@
+/**
+ * @file lexer.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for lexer.c
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef LEXER_H
 #define LEXER_H
 

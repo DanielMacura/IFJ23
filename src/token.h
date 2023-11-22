@@ -1,3 +1,13 @@
+/**
+ * @file token.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for token.c, contains token struct and token_ID enum
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #ifndef TOKEN_H
 #define TOKEN_H

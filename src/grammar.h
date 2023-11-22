@@ -1,3 +1,13 @@
+/**
+ * @file grammar.h
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for grammar.c
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
 

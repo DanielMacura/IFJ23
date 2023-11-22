@@ -1,3 +1,13 @@
+/**
+ * @file lexer.c
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of lexer functions
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "lexer.h"
 
 extern error_code ERROR;

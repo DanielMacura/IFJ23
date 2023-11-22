@@ -1,3 +1,13 @@
+/**
+ * @file main.c
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Main file of the compiler
+ * @version 0.1
+ * @date 2023-11-22
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

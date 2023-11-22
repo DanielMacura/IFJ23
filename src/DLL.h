@@ -1,11 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file DLL.h
- * @brief Interface for doubly linked list
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Header file for DLL.c
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #ifndef DLL_H
 #define DLL_H

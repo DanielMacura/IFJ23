@@ -1,11 +1,13 @@
 /**
- * Project: IFJ23 Compiler
- * 
  * @file expressions.c
- * @brief Implementation of expression parser
+ * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @brief Implementation of bottom-up parser for expressions
+ * @version 0.1
+ * @date 2023-11-22
  * 
- * @authors xmacur09
-*/
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #include "expressions.h"
 
