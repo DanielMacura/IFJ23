@@ -76,9 +76,9 @@ void freeStack(Stack *stack) {
  * @param stack The stack to print.
  */
 void printStack(Stack *stack) {
-    printf("Stack: ");
+    verbose("Stack: ");
     for (int i = 0; i <= stack->top; i++) {
-        printf("%d ", stack->data[i]);
+        verbose("%d ", stack->data[i]);
     }
-    printf("\n");
+    verbose("\n");
 }

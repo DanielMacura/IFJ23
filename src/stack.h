@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "verbose.h"
 
 /**
  * @brief Struct representing a stack data structure.
