@@ -8,6 +8,9 @@
 #include "token.h"
 #include "errors.h"
 #include "analyser.h"
+#include "types.h"
+#include "generator.h"
+#include "verbose.h"
 
 
 /**
@@ -59,6 +62,14 @@
         } while (token_ptr->ID == TOKEN_EOL);               \
     }                                                       \
 
+#define check_lexer_error()                                 \
+    ;                                                       \
+    if (ERROR)                                              \
+    {                                                       \
+        expr_stack_free(expr_stack);                        \
+        return ERROR;                                       \
+    }
+
 
 /**
  * @brief Macro for returning all tokens taken by next_token().
@@ -73,25 +84,7 @@
     }                                    \
     COUNTER = 0;
 
-typedef enum {
-    TERM,
-    NONTERM,
-    DOLLAR
-} expr_item_type;
 
-typedef enum {
-    UNDEFINED,
-    NULL_TYPE,
-    INT,
-    INT_NULL,
-    FLOAT,
-    FLOAT_NULL,
-    STRING,
-    STRING_NULL,
-    BOOL_TYPE,
-    TERM_TYPE,       //INT, FLOAT or STRING
-    
-} data_type;
 
 typedef struct expr_item {
     token *token_ptr;
@@ -106,27 +99,7 @@ typedef struct {
     expr_item *top_item;
 } expr_stack;
 
-/**
- * @brief 
- * 
- */
-typedef enum rules{
-    PAR_E_PAR,      // E -> (E)
-    E_PLUS_E,       // E -> E + E
-    E_MINUS_E,      // E -> E - E
-    E_MULTIPLE_E,   // E -> E * E
-    E_DIVIDE_E,     // E -> E / E
-    E_EQ_E,         // E -> E == E
-    E_NEQ_E,        // E -> E != E
-    E_LT_E,         // E -> E < E
-    E_GT_E,         // E -> E > E
-    E_LEQ_E,        // E -> E <= E
-    E_GEQ_E,        // E -> E >= E
-    E_COALESCE_E,   // E -> E ?? E
-    E_EXCLAMATION,  // E -> E!
-    ID,             // E -> id
-    NONE            // No rule
-} rules;
+
 
 expr_item *expr_item_new(token *, expr_item_type);
 

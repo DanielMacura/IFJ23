@@ -12,9 +12,6 @@
 extern error_code ERROR;
 
 
-extern int ERRORFROMLEXER;
-extern int BODYRECURSIONCOUNT;
-
 size_t COUNTER = 0;
 
 /**
@@ -383,18 +380,17 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
     rules rule;
     //shutup compiler
     (void)rule;
-    printf("number of items: %d\n", number_of_items);
+    verbose("number of items: %d\n", number_of_items);
     if (number_of_items == 1)
     {
         item_right = expr_stack_pop(expr_stack);
         if (item_right->type == TERM && get_index_token(item_right->token_ptr) == 7) { // E -> id
             rule = ID;
             //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);   //FIXME: add back
-            //operation_rule(rule, item_right->token_ptr);  //FIXME: add back code generation
+            operationRule(rule, item_right->token_ptr); 
             ret_val = true;
         }
         else {
-            printf("return 1\n");
             ret_val = false;
         }
     }
@@ -409,7 +405,6 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
             ret_val = true;
         }
         else{
-            printf("return 2\n");
             ret_val = false;
         }
     }
@@ -464,12 +459,11 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
                 ret_val = true;
             }
             else {
-                printf("return 3\n");
                 ret_val = false;
             }
             if (ret_val){
                 //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);         //FIXME: add back
-                //operation_rule(rule, NULL);   //generate code
+                operationRule(rule, NULL);   //generate code
             }
         }
         else if ((item_right->type == TERM && get_index_token(item_right->token_ptr) == 2) &&
@@ -479,12 +473,10 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
             //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);       //FIXME: add back
         }
         else {
-            printf("return 4\n");
             ret_val = false;
         }
     }
     else {
-        printf("return 5\n");
         return false;
     }
 
@@ -542,21 +534,18 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
     expr_stack_push(expr_stack, new_item);
 
     next_token_counted();
-    if (ERROR) {
-        expr_stack_free(expr_stack);
-        return_all_tokens();
-        return false;
-    }
+    check_lexer_error();
 
     do { 
         expr_item *stack_term = get_term_or_dollar(expr_stack);
-        printf("stack_term: %s\n",stack_term->type==DOLLAR?"dollar" :token_names[stack_term->token_ptr->ID]);
+        verbose("stack_term: %s\n",stack_term->type==DOLLAR?"dollar" :token_names[stack_term->token_ptr->ID]);
         switch (get_precedence(stack_term->token_ptr, token_ptr)) { // precedence table
             case '=':
-                printf("=   %s\n", token_names[token_ptr->ID]);
+                verbose("=   %s\n", token_names[token_ptr->ID]);
                 new_item(new_item, &dll->activeElement->data, TERM);
                 next_token_counted();
-                printf("=   next tok %s\n", token_names[token_ptr->ID]);
+                check_lexer_error();
+                verbose("=   next tok %s\n", token_names[token_ptr->ID]);
                 expr_stack_push(expr_stack, new_item);
                 if (ERROR) {
                     expr_stack_free(expr_stack);
@@ -565,11 +554,12 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
                 }
                 break;
             case '<':
-                printf("<   %s\n", token_names[token_ptr->ID]);
+                verbose("<   %s\n", token_names[token_ptr->ID]);
                 stack_term->breakpoint = true;
                 new_item(new_item, &dll->activeElement->data, TERM);
                 next_token_counted();
-                printf("=   next tok %s\n", token_names[token_ptr->ID]);
+                check_lexer_error();
+                verbose("=   next tok %s\n", token_names[token_ptr->ID]);
 
                 expr_stack_push(expr_stack, new_item);
                 if (ERROR) {
@@ -579,10 +569,10 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
                 }
                 break;
             case '>':
-                printf(">   %s\n", token_names[token_ptr->ID]);
+                verbose(">   %s\n", token_names[token_ptr->ID]);
                 if (!apply_rule(expr_stack/*, tables*/)) {
                     ERROR = SYNTAX_ERR;
-                    printf("BAD expresoizn\n");
+                    verbose("BAD expresoizn\n");
                     expr_stack_free(expr_stack);
                     return_all_tokens();
                     return false;
@@ -592,22 +582,34 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
                     return_all_tokens();
                     return false;
                 }
-                if (expr_stack->top_item->type == NONTERM && expr_stack->top_item->next_item->type == DOLLAR && get_index_token(token_ptr) == 0) { 
+                if (expr_stack->top_item->type == NONTERM && expr_stack->top_item->next_item->type == DOLLAR && get_index_token(token_ptr) == 0)
+                {
                     if (exp_brack) {
                         ERROR = SYNTAX_ERR;
                         expr_stack_free(expr_stack);
                         return_all_tokens();
                         return false;
                     }
+                    /*  we got to a state, which may be the end of the expression.
+                    we got two terminals which would be an error, so we treat the last
+                    terminal as a dollar and try to apply rules.
+                    either we get to the end of the expression or we get an error.   */
+                    return_token(); //return last token that caused state i
+                    return_token(); //return one more token and check if it was EOL, if not cosume it. This is because a EOL is needed for end of command nonterminal
+                    next_token();
+                    check_lexer_error();
+                    if (token_ptr->ID == TOKEN_EOL) {
+                        return_token();
+                    }
                     *final_type = expr_stack->top_item->data_type;
                     expr_stack_free(expr_stack);
                     DLL_move_active_left(dll); 
                     COUNTER = 0;
-                    return true; 
+                    return true;
                 }
                 break;
             case 'i':
-                printf("i   %s\n", token_names[token_ptr->ID]);
+                verbose("i   %s\n", token_names[token_ptr->ID]);
 
                 /*  we got to a state, which may be the end of the expression.
                     we got two terminals which would be an error, so we treat the last
@@ -617,6 +619,7 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
                 return_token(); //return last token that caused state i
                 return_token(); //return one more token and check if it was EOL, if not cosume it. This is because a EOL is needed for end of command nonterminal
                 next_token();
+                check_lexer_error();
                 if (token_ptr->ID == TOKEN_EOL) {
                     return_token();
                 }
@@ -668,13 +671,14 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
                 
                 break;
             case '\0':
-                printf("NULL    %s\n", token_names[token_ptr->ID]);
+                verbose("NULL    %s\n", token_names[token_ptr->ID]);
                 if (/*exp_brack && token_ptr->ID == TOKEN_RBRACKET*/ 1) {
                     next_token_counted();
+                    check_lexer_error();
                     
-                    printf("NULL    next tok %s\n", token_names[token_ptr->ID]);
+                    verbose("NULL    next tok %s\n", token_names[token_ptr->ID]);
                     if (ERROR) {
-                        printf("ERROR\n");
+                        verbose("ERROR\n");
                         expr_stack_free(expr_stack);
                         return_all_tokens();
                         return false;
@@ -702,11 +706,28 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
 
                 
             case 'f':
+                /*  we got to a state, which may be the end of the expression.
+                we got two terminals which would be an error, so we treat the last
+                terminal as a dollar and try to apply rules.
+                either we get to the end of the expression or we get an error.   */
+                return_token(); // return last token that caused state i
+                return_token(); //return one more token and check if it was EOL, if not cosume it. This is because a EOL is needed for end of command nonterminal
+                next_token();
+                check_lexer_error();
+                if (token_ptr->ID == TOKEN_EOL)
+                {
+                    return_token();
+                }
                 *final_type = expr_stack->top_item->data_type;
                 expr_stack_free(expr_stack);
                 COUNTER = 0;
                 return true; 
 
+            default:
+                break;
+
         }
+
+        
     } while (1);
 }
