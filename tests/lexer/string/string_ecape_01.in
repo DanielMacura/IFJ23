@@ -1,1 +1,1 @@
-"Ahoj\n\"Sve'te \\\u{22}"
+let message = "Ahoj\n\"Sve'te \\\u{22}"
