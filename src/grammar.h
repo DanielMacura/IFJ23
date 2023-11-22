@@ -1,6 +1,12 @@
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
 
+#include "errors.h"
+#include "lexer.h"
+#include "expressions.h"
+#include "types.h"
+
+
 #define MINTERM 1       /* Smallest terminal. */
 #define MAXTERM 255       /* Largest terminal. */
 #define MINNONTERM 256  /* Smallest nonterminal. */
@@ -97,11 +103,12 @@ extern int Prod76[] ;                 // TOKEN_MULTIPLICATION
 extern int Prod77[] ;                 // TOKEN_LBRACKET
 extern int Prod78[] ;                 // TOKEN_RBRACKET
 extern int Prod79[] ;                 // TOKEN_ARROW
+extern int Prod80[] ;                 // TOKEN_LCURLYBRACKET
 
-
+int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression);
 
 extern int *productions[];
 
-extern int table[24][42];
+extern int table[24][43];
 
 #endif
