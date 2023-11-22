@@ -39,7 +39,7 @@ def run_tests(program):
                             testcase.append(failure)
                             testsuite.set("failures", str(int(testsuite.get("failures")) + 1))
                         elif expected_rc == 0:
-                            int_rc = subprocess.call([intepreter], stdin=open(os.path.join(path, test_name+".temp")), stdout=open(os.path.join(path, test_name + ".tem2"), "w"), timeout=1)
+                            int_rc = subprocess.call([intepreter, os.path.join(path, test_name + ".temp")], stdout=open(os.path.join(path, test_name + ".temp2"), "w"), timeout=1)            # stdin=open(os.path.join(path, test_name + ".temp")),
                             if int_rc != 0:
                                 failure = ET.Element("failure", message="Return code does not match expected value", type="AssertionError", text=f"Expected return code {expected_rc}, but got {int_rc}")
                                 testcase.append(failure)
@@ -58,7 +58,15 @@ def run_tests(program):
                     testcase.set("time", "0.001")
                 testsuite.set("tests", str(int(testsuite.get("tests")) + 1))
                 testsuite.append(testcase)
-                os.remove(os.path.join(path, test_name + ".temp"))
+                try:
+                    os.remove(os.path.join(path, test_name + ".temp"))
+                except:
+                    pass
+                try:
+                    os.remove(os.path.join(path, test_name + ".temp2"))
+                except:
+                    pass
+
     with open("test-results.xml", "w") as f:
         f.write(ET.tostring(testsuite, encoding="unicode", method="xml"))
     print(f"Tests passed: {int(testsuite.get('tests')) - int(testsuite.get('failures'))}/{testsuite.get('tests')}")
