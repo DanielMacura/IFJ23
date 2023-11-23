@@ -1,0 +1,8 @@
+var s =
+"""
+test
+
+string\n
+"""
+write(s)
+
