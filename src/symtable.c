@@ -9,8 +9,9 @@
  * 
  */
 #include "symtable.h"
-#include <stdio.h>
-#include <stdlib.h>
+
+
+extern error_code ERROR;
 
 // Frame stack
 bst_node_t* global_frame = NULL;
@@ -22,11 +23,21 @@ bst_node_t** local_frames;
 int frame_stack_size = 0;
 // TODO: Keep track of sizeof(local_frames) to avoid segfault
 
+/**
+ * @brief Initialize the symbol table
+ * 
+ */
 void symtable_init() {
-    bst_init(&global_frame);    
+  bst_init(&global_frame);    
 	local_frames = malloc(sizeof(bst_node_t*) * 8);
 }
 
+/**
+ * @brief Set the frame root node
+ * 
+ * @param frame_type Which frame to set
+ * @param new_root The new root node
+ */
 void set_frame_root(frame_type frame_type, bst_node_t* new_root) {
     if (frame_type == LOCAL_FRAME) {
         if (local_frames[frame_stack_size - 1])
@@ -34,21 +45,31 @@ void set_frame_root(frame_type frame_type, bst_node_t* new_root) {
         local_frames[frame_stack_size - 1] = new_root;
     }
     else if (frame_type == TEMP_FRAME) {
-        if (temp_frame)
+
             //printf("Set frame root for TEMP -> %s (was %s)\n", new_root->key, temp_frame->key);
-        temp_frame = new_root;
+      temp_frame = new_root;
     }
     else if (frame_type == GLOBAL_FRAME) {
-        if (global_frame)
-            //printf("Set frame root for GLOBAL -> %s (was %s)\n", new_root->key, global_frame->key);
-        global_frame = new_root;
+
+    global_frame = new_root;
+        
+    //printf("Set frame root for GLOBAL -> %s (was %s)\n", new_root->key, global_frame->key);
     }
     else {
         //printf("INTERNAL ERR: set_frame_root: unknown frame type %d\n", frame_type);
-        exit(-1);
+        set_error(INTERNAL_ERR); //FIXME: //TODO: treba pekne sa vratit, nie exit koli freeom v maine
+        return;
     }
 }
 
+/**
+ * @brief Get the symbol from frame object
+ * 
+ * @param frame_type 
+ * @param symbol 
+ * @param follow_up 
+ * @return SymbolData* 
+ */
 SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up) {
     bst_node_t* frame;
     if (frame_type == LOCAL_FRAME) {
@@ -62,7 +83,8 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
     }
     else {
         //printf("INTERNAL ERR: get_symbol_from_frame: unknown frame type %d\n", frame_type);
-        exit(-1);
+        set_error(INTERNAL_ERR); //FIXME: //TODO: treba pekne sa vratit, nie exit koli freeom v maine
+        return NULL;
     }
 
 
@@ -81,22 +103,34 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
             //printf("Get symbol %s from:\n", symbol);
             return data;
         }
-        // else if (follow_up == IGNORE_IF_MISSING) {                     //FIXME: //TODO: warning: returning ‘int’ from a function with return type ‘SymbolData *’ makes pointer from integer without a cast [-Wint-conversion]
-        //     //printf("Symbol not in symbol table, ignoring...\n");
-        //     return 56;
-        // }
+        else if (follow_up == IGNORE_IF_MISSING) {                     //FIXME: //TODO: warning: returning ‘int’ from a function with return type ‘SymbolData *’ makes pointer from integer without a cast [-Wint-conversion]
+            //printf("Symbol not in symbol table, ignoring...\n");
+            
+            return NULL;
+        }
         else if (follow_up == ERROR_IF_MISSING) {
             //printf("Symbol not inf symbol table, raising error...\n");
-            //TODO: my_exit(56);
+            set_error(UNDEFINED_VAR_ERR);
+            return NULL;
         }
         else {
             //printf("INTERNAL ERR: get_symbol_from_frame: unknown follow_up resolution %d\n", follow_up);
-            exit(-1);                                                                       //FIXME: //TODO: treba pekne sa vraj vratit, nie exit koli freeom v maine
+            set_error(INTERNAL_ERR);
+
+            return NULL;
         }
 	}
   return NULL;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
 }
 
+/**
+ * @brief Get the the symbol from frames, in order of priority: TEMP, LOCAL, GLOBAL
+ * 
+ * @param symbol 
+ * @param follow_up 
+ * @param found_frame_type 
+ * @return SymbolData* 
+ */
 SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type) {
     //printf("Get symbol %s, followup %d\n", symbol, follow_up);
     SymbolData* result;
@@ -137,7 +171,8 @@ SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found
 
     if (follow_up == ERROR_IF_MISSING) {
         *found_frame_type = -1;
-        //TODO: my_exit(56);
+        set_error(INTERNAL_ERR);
+        return NULL;
     }
 
     if (follow_up == CREATE_IF_MISSING) {
@@ -164,9 +199,15 @@ SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found
     }
 
     //printf("INTERNAL ERR: get_symbol: unknown follow_up resolution %d\n", follow_up);
-    exit(-1);
+    set_error(INTERNAL_ERR);
+    return NULL;
 }
 
+/**
+ * @brief Allocate a new frame
+ * 
+ * @return int 
+ */
 int create_frame() {
     // TODO: Free temp if exists
     exists_temp_frame = 1;
@@ -175,10 +216,17 @@ int create_frame() {
 
 }
 
+/**
+ * @brief Push the temp frame to the local frame stack
+ * 
+ * @return int 
+ */
 int push_frame() {
     if (!exists_temp_frame) {
         //printf("push_frame: no temp frame available\n");
+        set_error(INTERNAL_ERR);
         //TODO: my_exit(55);
+        return -1;
     }
 
     local_frames[frame_stack_size] = temp_frame;
@@ -188,10 +236,17 @@ int push_frame() {
     return 0;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
 }
 
+/**
+ * @brief Pop the local frame stack to the temp frame
+ * 
+ * @return int 
+ */
 int pop_frame() {
     // TODO: Free temp if exists
     if (frame_stack_size < 1) {
         //printf("pop_frame: no local frame available\n");
+        set_error(INTERNAL_ERR);
+        return -1;
         //TODO: my_exit(55);
     }
 
@@ -202,10 +257,22 @@ int pop_frame() {
 
 }
 
+/**
+ * @brief Initialize a binary search tree
+ * 
+ * @param tree 
+ */
 void bst_init(bst_node_t **tree) {
   *tree = NULL;
 }
 
+/**
+ * @brief Search for a key in a binary search tree
+ * 
+ * @param tree 
+ * @param key 
+ * @return SymbolData* 
+ */
 SymbolData* bst_search(bst_node_t *tree, char* key) {
   if (tree == NULL) {
     return NULL;
@@ -223,8 +290,18 @@ SymbolData* bst_search(bst_node_t *tree, char* key) {
   }
 }
 
+/**
+ * @brief Insert a new node into a binary search tree
+ * 
+ * @param tree The tree to insert into
+ * @param key Name of the variable/function 
+ * @param value Data about the variable/function
+ * @param parent Parent of the new node, may be NULL
+ * @return bst_node_t* 
+ */
 bst_node_t* bst_insert(bst_node_t **tree, char* key, SymbolData* value, bst_node_t* parent) {
   if ((*tree) == NULL){
+
     bst_node_t *new_node = malloc(sizeof(bst_node_t));
     if (new_node == NULL) {
       return NULL;
@@ -253,7 +330,8 @@ bst_node_t* bst_insert(bst_node_t **tree, char* key, SymbolData* value, bst_node
     return bst_insert(&(*tree)->right, key, value, *tree);
   } else {
     //printf("bst_insert: Replacing existing node %s\n", key);
-    exit(-1);
+    set_error(INTERNAL_ERR);
+    return NULL;
   }
 }
 
@@ -373,7 +451,8 @@ void rotate_up(bst_node_t* node) {
   }
   else {
     //printf("Invalid tree structure, parent %s has no child %s\n", node->parent->key, node->key);
-    exit(-1);
+    set_error(INTERNAL_ERR);
+    return;
   }
 }
 

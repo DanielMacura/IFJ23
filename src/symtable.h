@@ -10,9 +10,13 @@
  */
 #ifndef SYMTABLE
 #define SYMTABLE
-#include "error.h"
+#include "errors.h"
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "token.h"
+#include "types.h"
 
 typedef enum {
 	GLOBAL_FRAME,
@@ -25,38 +29,71 @@ typedef enum {
 	IGNORE_IF_MISSING, // return NULL if not found
 	ERROR_IF_MISSING // run error.h
 } symbol_missing;
+
+/**
+ * @brief Struct representing a variable
+ * 
+ */
 typedef struct {
-	int is_declared;
-	int data_type;
+	data_type type;
+	int is_defined;
 	int was_used;
 } VariableData;
 
+/**
+ * @brief Struct representing a parameter of a function.
+ * 		  jméno_parametru  identifikátor_parametru:typ
+ * 
+ */
+typedef struct
+{
+    char* name;
+	char *identifier;
+    data_type type;
+} parameter;
+
+/**
+ * @brief Struct representing a function
+ * 
+ */
 typedef struct {
 	int is_declared;
 	int is_defined;
 
-	int param_length;
-	int* param_list;
+	int num_of_params;
+	parameter *parameters;
 	
-	int return_type;
+	data_type return_type;
 } FunctionData;
 
+/**
+ * @brief Enum for symbol type
+ * 
+ */
 typedef enum {
 	VAR_DATA,
 	FUNC_DATA
 } symbol_type;
 
+/**
+ * @brief Union of VariableData and FunctionData
+ * 
+ */
 typedef struct {
 	symbol_type type;
 	union { VariableData varData; FunctionData funcData; } data;
 } SymbolData;
 
+/**
+ * @brief Node of binary search tree
+ * 
+ */
 typedef struct bst_node {
-  char* key;               // kľúč
-  SymbolData* value;       // hodnota TODO: nahradit
+  char* key;               // key of the node -> name of variable/function
+  SymbolData* value;       // value of the node -> data about variable/function
   struct bst_node *parent;
-  struct bst_node *left;  // ľavý potomok
-  struct bst_node *right; // pravý potomok
+  struct bst_node *left;  
+  struct bst_node *right; 
 } bst_node_t;
 
 void symtable_init();
