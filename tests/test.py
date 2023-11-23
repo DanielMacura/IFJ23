@@ -70,6 +70,11 @@ def run_tests(program):
     with open("test-results.xml", "w") as f:
         f.write(ET.tostring(testsuite, encoding="unicode", method="xml"))
     print(f"Tests passed: {int(testsuite.get('tests')) - int(testsuite.get('failures'))}/{testsuite.get('tests')}")
+    print(f"Failures: {testsuite.get('failures')}")
+    # print names of failed tests from ET
+    for test in testsuite.findall("testcase"):
+        if len(test.findall("failure")) != 0:
+            print(test.get("classname") + "." + test.get("name"))
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
