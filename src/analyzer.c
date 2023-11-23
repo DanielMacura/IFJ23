@@ -12,12 +12,16 @@
 #include "analyzer.h"
 
 extern error_code ERROR;
+int argument_counter = 0;
+char* function_name;
+
 char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
 
 int runSyntax(lexer_T  *lexer, DLL *dll){
-    Stack* stack = createStack(100);
+    Stack* stack = createStack(100); 
     push(stack, STARTSTATE);
     DLLElementPtr token_ptr_before;
+    data_type final_type = UNDEFINED;
 
     token *token_ptr;
     next_token();
@@ -33,7 +37,7 @@ int runSyntax(lexer_T  *lexer, DLL *dll){
 
         if(ISACT(popped)){                          // the symbol at top of stack represents an action
             verbose("Action: %d\n", popped);
-            int errorno = actions(popped, dll, token_ptr_before);
+            int errorno = actions(popped, dll, token_ptr_before, &final_type);
             if(errorno != SUCCESS){
                 fprintf(stderr, "Error: %d\n", errorno);
                 return errorno;
@@ -43,7 +47,6 @@ int runSyntax(lexer_T  *lexer, DLL *dll){
             token_ptr_before = dll->activeElement;
             if(popped == STARTSTATE+5){             // We got an expression
                 verbose("Expression\n");
-                data_type final_type;
                 return_token();
                 int result = parse_expression(lexer, dll, &final_type, false);
                 if (result == false){
