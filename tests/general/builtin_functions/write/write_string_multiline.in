@@ -2,7 +2,7 @@ var s =
 """
 test
 
-string\n
+string
 """
 write(s)
 
