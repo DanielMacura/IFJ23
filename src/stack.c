@@ -10,6 +10,16 @@
  */
 #include "stack.h"
 
+Stack *if_stack;
+
+/**
+ * @brief Initializes the if_stack. Called from main.
+ * 
+ */
+void init_if_stack(){
+    if_stack = createStack(100);
+}
+
 /**
  * @brief Creates a new stack with the given size.
  *

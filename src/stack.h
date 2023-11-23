@@ -16,6 +16,12 @@
 #include "verbose.h"
 
 /**
+ * @brief Initializes the if_stack. Called from main.
+ * 
+ */
+void init_if_stack();
+
+/**
  * @brief Struct representing a stack data structure.
  *
  */

@@ -21,7 +21,9 @@
 #include "DLL.h"
 #include "analyzer.h"
 
+
 error_code ERROR = SUCCESS;
+int label_counter = 0;  // counter for generating labels to avoid duplicates
 
 /**
  * @brief Main function of the compiler
@@ -33,7 +35,7 @@ int main(int argc, char **argv) {
     token *Token = malloc(sizeof(token));
     setVerbose(false);
     DLL *dll = createDLL();
-
+    init_if_stack();
     symtable_init();
 
     // Lexer tests, generates tokens from the input
