@@ -34,6 +34,8 @@ int main(int argc, char **argv) {
     setVerbose(false);
     DLL *dll = createDLL();
 
+    symtable_init();
+
     // Lexer tests, generates tokens from the input
     if (argc == 2 && strcmp(argv[1], "-t") == 0)
     {        
