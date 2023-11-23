@@ -14,6 +14,8 @@ extern bst_node_t *global_frame;
 extern int argument_counter;
 extern error_code ERROR;
 extern char *function_name;
+extern Stack *if_stack;
+extern int label_counter;
 
 char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
 
@@ -22,18 +24,16 @@ char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_bo
  * @brief Define the right hand side of each production, listed back to front.
  * 
  */
-
-
 int Prod0[] = {0};                 // ε
 int Prod1[] = {256,257,7,260,257,6,259,5,4,258,3,257,2,1,0};                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
-int Prod2[] = {256,257,7,260,257,6,9,7,260,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+int Prod2[] = {256,257,521,7,260,257,520,6,257,9,257,7,260,519,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter 519 nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE optional_enter TOKEN_LCURLYBRACKET 520 optional_enter nested_body TOKEN_RCURLYBRACKET 521 optional_enter body
 int Prod3[] = {256,257,7,260,257,6,257,261,10,0};                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 int Prod4[] = {256,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command body
 int Prod5[] = {256,263,264,514,0};                 // 514 function_call end_of_command body
 int Prod6[] = {256,263,513,265,0};                 // definition 513 end_of_command body
 int Prod7[] = {256,263,513,266,0};                 // assignment 513 end_of_command body
 int Prod8[] = {0};                 // ε
-int Prod9[] = {260,257,7,260,257,6,9,257,7,260,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
+int Prod9[] = {260,257,521,7,260,257,520,6,257,9,257,7,260,519,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter 519 nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE optional_enter TOKEN_LCURLYBRACKET 520 optional_enter nested_body TOKEN_RCURLYBRACKET 521 optional_enter nested_body
 int Prod10[] = {260,257,7,260,257,6,257,261,10,0};                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
 int Prod11[] = {260,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command nested_body
 int Prod12[] = {260,263, 264,514,0};                 // 514 function_call end_of_command nested_body
@@ -49,7 +49,7 @@ int Prod21[] = {0};                 // ε
 int Prod22[] = {274,17,0};                 // TOKEN_EQUALS assignment_prime
 int Prod23[] = {274,17,14,0};                 // TOKEN_VARIABLE TOKEN_EQUALS assignment_prime
 int Prod24[] = {261,0};                 // expression
-int Prod25[] = {264,0};                 // function_call
+int Prod25[] = {518, 264, 514,0};                 // 514 function_call 518       <-- from assignment_prime
 int Prod26[] = {516, 4,515,272,517,3,2,0};                 // TOKEN_IDENTIFIER TOKEN_LBRACKET reset_arg_counter517 arguments 515 TOKEN_RBRACKET 516
 int Prod27[] = {270,269,0};                 // c_type postfix
 int Prod28[] = {0};                 // ε
@@ -107,6 +107,7 @@ int Prod79[] = {22,0};                 // TOKEN_KW_NIL
 int Prod80[] = {41,0};                 // TOKEN_EXCLAMATIONMARK
 int Prod81[] = {256, 12, 0};                 // EOL body
 int Prod82[] = {261,12,0};                 // EOL expression
+int Prod83[] = {260, 12, 0};                 // EOL nested_body
 
 int *productions[] = {
     Prod0, Prod1, Prod2, Prod3, Prod4, Prod5, Prod6, Prod7, Prod8, Prod9,
@@ -117,7 +118,7 @@ int *productions[] = {
     Prod50, Prod51, Prod52, Prod53, Prod54, Prod55, Prod56, Prod57, Prod58, Prod59,
     Prod60, Prod61, Prod62, Prod63, Prod64, Prod65, Prod66, Prod67, Prod68, Prod69,
     Prod70, Prod71, Prod72, Prod73, Prod74, Prod75, Prod76, Prod77, Prod78, Prod79,
-    Prod80, Prod81, Prod82
+    Prod80, Prod81, Prod82, Prod83
 };
 
 int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type){
@@ -209,7 +210,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     printf("MOVE TF@%%arg%d int@%s\n", argument_counter, dll->activeElement->data.VAL.string);
                     break;
                 case TOKEN_FLOAT:
-                    printf("MOVE TF@%%arg%d float@%a\n", argument_counter,  atof(dll->activeElement->data.VAL.string));
+                    printf("MOVE TF@%%arg%d float@%a\n", argument_counter,  strtod(dll->activeElement->data.VAL.string, NULL));
                     break;
                 case TOKEN_STRING:
                     printf("MOVE TF@%%arg%d string@%s\n", argument_counter, dll->activeElement->data.VAL.string);
@@ -243,6 +244,30 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
             {
                 break;
             }
+            else if(strcmp(function_name, "readInt") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                printf("READ TF@%%retval int\n");
+            }
+            else if(strcmp(function_name, "readString") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                printf("READ TF@%%retval string\n");
+            }
+            else if(strcmp(function_name, "readDouble") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                printf("READ TF@%%retval float\n");
+            }
             else{
                 printf("CALL $%s\n", function_name);
                 printf("PUSHS TF@%%retval\n");
@@ -257,6 +282,43 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
             argument_counter = 0;
             break;
 
+        /**
+         * @brief Push the return value of a function to the stack. Used to assign the return value to a variable.
+         * 
+         */
+        case 518:
+            printf("PUSHS TF@%%retval\n");
+            break;
+        break;
+        /**
+         * @brief First part of a if statement, already has bool value on the stack.
+         *        We create the jumpifEQ to jump to the else label, which is named with the label counter.
+         *        We push the label counter to the stack, so we can later pop it and use it for the else label.
+         *        This allows us to have nested if statements.
+         * 
+         */
+        case 519:
+            printf("PUSHS bool@true\n");
+            printf("JUMPIFNEQS $$else%d\n", label_counter);
+            push(if_stack, label_counter);
+            label_counter++;
+            break;
+        /**
+         * @brief The second part of the if statement, the ELSE statement.
+         *        
+         */
+        case 520:
+            printf("JUMP $$endif%d\n", peek(if_stack)); // ensures we jump over else block if we didnt jump to it from the if statemnt
+            printf("LABEL $$else%d\n", peek(if_stack));
+            break;
+        /**
+         * @brief End of the if statement, we pop the label counter from the stack and create the endif label.
+         * 
+         */
+        case 521:
+            printf("LABEL $$endif%d\n", pop(if_stack));
+            break;
+
 
         default:
             return SYNTAX_ERR;
@@ -266,10 +328,10 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
 }
 int table[24][43] = {
     { 1,1,5,-1,-1,-1,-1,-1,2,-1,3,4,81,6,7,6,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-    { 16,15,15,15,-1,-1,15,15,15,15,15,15,16,15,15,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    { 16,15,15,15,-1,-1,15,15,15,15,15,15,16,15,15,15,-1,-1,-1,-1,-1,-1,-1,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,-1,39,-1,-1,-1,-1,-1,-1,-1,-1,-1,40,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,40,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,27,27,27,27,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-    {-1,-1,12,-1,-1,-1,-1,8,9,-1,10,11,-1,13,14,13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    {-1,-1,12,-1,-1,-1,-1,8,9,-1,10,11,83,13,14,13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,77,78,-1,-1,-1,-1,-1,-1,-1,-1,-1,62,-1,-1,-1,-1,-1,-1,-1,79,-1,-1,-1,-1,63,64,65,66,67,68,69,70,71,72,73,74,75,76,80,-1},
     {-1,-1,57,56,56,-1,-1,-1,-1,-1,-1,-1,55,-1,56,-1,-1,-1,-1,-1,-1,-1,56,55,55,-1,-1,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,-1},
     {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,35,36,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},

@@ -466,7 +466,7 @@ bool apply_rule(expr_stack *expr_stack) {
                 rule = E_EQ_E;
                 ret_val = true;
             }
-            else if (item_middle->token_ptr->ID == TOKEN_NOT_EQUALS) { // E -> E !== E
+            else if (item_middle->token_ptr->ID == TOKEN_NOT_EQUALS) { // E -> E != E
                 rule = E_NEQ_E;
                 ret_val = true;
             }
