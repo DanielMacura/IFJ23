@@ -31,6 +31,8 @@ def run_tests(program):
                                 testcase.append(failure)
                                 testsuite.set("failures", str(int(testsuite.get("failures")) + 1))
                     else:
+
+
                         actual_rc = subprocess.call([program], stdin=open(os.path.join(path, name)), stdout=open(os.path.join(path, test_name + ".temp"), "w"), timeout=1)
 
 
@@ -39,7 +41,13 @@ def run_tests(program):
                             testcase.append(failure)
                             testsuite.set("failures", str(int(testsuite.get("failures")) + 1))
                         elif expected_rc == 0:
-                            int_rc = subprocess.call([intepreter, os.path.join(path, test_name + ".temp")], stdout=open(os.path.join(path, test_name + ".temp2"), "w"), timeout=1)            # stdin=open(os.path.join(path, test_name + ".temp")),
+                            #check if os.path.join(path, name + ".stdin") exists
+                            if os.path.isfile(os.path.join(path, test_name + ".stdin")):
+                                int_rc = subprocess.call([intepreter, os.path.join(path, test_name + ".temp")],stdin=open(os.path.join(path, test_name + ".stdin")), stdout=open(os.path.join(path, test_name + ".temp2"), "w"), timeout=1)
+
+                            else:
+                                int_rc = subprocess.call([intepreter, os.path.join(path, test_name + ".temp")], stdout=open(os.path.join(path, test_name + ".temp2"), "w"), timeout=1)            # stdin=open(os.path.join(path, test_name + ".temp")),
+                            
                             if int_rc != 0:
                                 failure = ET.Element("failure", message="Return code does not match expected value", type="AssertionError", text=f"Expected return code {expected_rc}, but got {int_rc}")
                                 testcase.append(failure)
