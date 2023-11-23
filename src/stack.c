@@ -1,7 +1,7 @@
 /**
  * @file stack.c
  * @author Daniel Mačura (xmacur09@vutbr.cz)
- * @brief Implementation of stack, used in table parser
+ * @brief Implementation of dynamically sized stack, used in table parser
  * @version 0.1
  * @date 2023-11-22
  * 
@@ -13,7 +13,7 @@
 /**
  * @brief Creates a new stack with the given size.
  *
- * @param size The size of the stack to be created.
+ * @param size The size of the stack to be created, will dynamicaly scale.
  * @return A pointer to the newly created stack.
  */
 Stack *createStack(int size) {
