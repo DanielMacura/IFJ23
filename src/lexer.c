@@ -699,7 +699,9 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
             if (lexer->c == '"') {
                 lexer_advance(lexer);
                 if (lexer->c == '"'){
-                    lexer_advance(lexer);
+                    do{
+                        lexer_advance(lexer);   //dont grab anything  untill EOL after the triple quotation
+                    } while (lexer->c == '\n'); //it will grab the EOL and then go to STATE_QUOTATION_TRIPLE_E
                     lexer->state = STATE_QUOTATION_TRIPLE_E;
                 }
                 else{
