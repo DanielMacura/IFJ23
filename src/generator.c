@@ -17,12 +17,24 @@ void beginGenerator(){
 
     printf("JUMP $$main\n");
     
-    generateBuiltin();
+    //generateBuiltin();
 
     beginMain();
 }
 
 void generateBuiltin(){
+
+    // Coalesce
+    printf("LABEL $$coalesce\n");
+    printf("POPS LF@&1\n");
+    printf("POPS LF@&2\n");
+    printf("JUMPIFEQS $$coalesce_end\n");
+    printf("PUSHS LF@&1\n");
+    printf("RETURN\n");
+    printf("LABEL $$coalesce_end\n");
+    printf("PUTS LF@&2\n");
+    printf("RETURN\n");
+
     builtin_write();
 }
 
@@ -152,8 +164,18 @@ void operationRule(rules operation, token *token_ptr) {
         printf("PUSHS bool@true\n");
         printf("EQS\n");
         break;
-    case ID:
+    case E_COALESCE_E:
+        printf("PUSHS LF@&1\n");
+        printf("PUSHS nil@nil\n");
+        printf("EQS\n");
+        printf("PUSHS LF@&2\n");
+        printf("PUSHS LF@&1\n");
+        printf("JUMP $$coalesce\n");
+        break;
+        
 
+
+    case ID:
         if (token_ptr->ID == TOKEN_VARIABLE) {
             printf("PUSHS LF@");
             printf("%s", token_ptr->VAL.string);
