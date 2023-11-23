@@ -38,6 +38,7 @@ typedef enum rules{
     E_CONCAT_E,     // E -> E + E
     E_MULTIPLE_E,   // E -> E * E
     E_DIVIDE_E,     // E -> E / E
+    E_IDIV_E,       // E -> E / E
     E_EQ_E,         // E -> E == E
     E_NEQ_E,        // E -> E != E
     E_LT_E,         // E -> E < E
