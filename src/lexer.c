@@ -394,6 +394,14 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 return SUCCESS;
             }
 
+            else if (lexer->c == ';'){
+                lexer->state = STATE_START;
+                Token->ID = TOKEN_SEMICOLLON;
+                Token->VAL.string = value;
+                lexer_advance(lexer);
+                return SUCCESS;
+            }
+
             else if (lexer->c == EOF) {
                 Token->ID = TOKEN_EOF;
                 Token->VAL.string = value;
