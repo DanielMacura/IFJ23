@@ -124,13 +124,13 @@ char get_precedence(token *, token *);
 
 int count_breakpoint(expr_stack *);
 
-//FIXME data_type get_data_type_from_item(expr_item *, expr_item *, expr_item */*, symtables*/);    //TODO: add symtables
+data_type get_data_type_from_item(expr_item *, expr_item *, expr_item* );   
 
-bool apply_rule(expr_stack */*, symtables*/);   //TODO: add symtables
+bool apply_rule(expr_stack*);   
 
 expr_item *get_term_or_dollar(expr_stack *);
 
-bool parse_expression(lexer_T *, DLL *,/*symtables,*/ data_type *, bool);   //TODO: add symtables
+bool parse_expression(lexer_T *, DLL *, data_type *, bool);  
 
 static const char precedence_table[9][9]={
 //       (    )    !    *    +   ==   ??    i    $

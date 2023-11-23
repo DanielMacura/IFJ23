@@ -200,40 +200,38 @@ int count_breakpoint(expr_stack *expr_stack) {
     return count;
 }
 
-/*
-data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle, expr_item *item_left, symtables tables) { // returns data type of expression
-    if (item_right->type == TERM && item_right->token_ptr->ID != TOKEN_ID_RBRACKET) { // id
-        if (item_right->token_ptr->ID == TOKEN_ID_VARIABLE) {
-            table_item_data *item = NULL;
 
-            item = hash_table_lookup(tables.local, item_right->token_ptr->VAL.string);
+data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle, expr_item *item_left) { // returns data type of expression
+    if (item_right->type == TERM && item_right->token_ptr->ID != TOKEN_RBRACKET) { // id
+        if (item_right->token_ptr->ID == TOKEN_VARIABLE) {
 
-            if (!item) {
-                item = hash_table_lookup(tables.global, item_right->token_ptr->VAL.string);
-            }
+
+            // item = hash_table_lookup(tables.local, item_right->token_ptr->VAL.string);
+
+            frame_type parent_frame;
+            SymbolData *item = get_symbol(item_right->token_ptr->VAL.string, IGNORE_IF_MISSING, &parent_frame);
 
             if (!item) {
                 ERROR = UNDEFINED_VAR_ERR;
                 return UNDEFINED;
             }
             else {
-                if (item->is_var) {
-                    return item->f_or_v.variable->type;
+                if (item->type == VAR_DATA) {
+                    return item->data.varData.type;
                 }
                 else {
                     ERROR = SEM_OTHER_ERR;
                     return UNDEFINED;
                 }
             }
+        }
+        else if (item_right->token_ptr->ID == TOKEN_INTEGER) {
             return INT;
         }
-        else if (item_right->token_ptr->ID == TOKEN_ID_INTEGER) {
-            return INT;
-        }
-        else if (item_right->token_ptr->ID == TOKEN_ID_FLOAT) {
+        else if (item_right->token_ptr->ID == TOKEN_FLOAT) {
             return FLOAT;
         }
-        else if (item_right->token_ptr->ID == TOKEN_ID_STRING) {
+        else if (item_right->token_ptr->ID == TOKEN_STRING) {
             return STRING;
         }
     }
@@ -243,28 +241,43 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
     else { // E something E
         data_type right = item_right->data_type;
         data_type left = item_left->data_type;
+        switch (item_middle->token_ptr->ID)
+        {
+        case TOKEN_PLUS:
+        case TOKEN_MINUS:
+        case TOKEN_MULTIPLICATION:
 
-        switch (item_middle->token_ptr->ID) {
-        case TOKEN_ID_PLUS:
-        case TOKEN_ID_MINUS:
-        case TOKEN_ID_MULTIPLICATION:
+            // concatentation case
+            if (item_middle->token_ptr->ID == TOKEN_PLUS){  
+                if ((right == STRING || right == NULL_TYPE) && (left == STRING || left == NULL_TYPE)) {
+                    return STRING;
+                }
+            }
+
+
             if (left == INT) {
+                // if left is INT and right is INT of NULL
                 if (right == INT || right == NULL_TYPE) {
                     return INT;
                 }
+                //if left is INT and right is FLOAT
                 else if (right == FLOAT) {
-                    create_temp_frame();
+
+
+                    printf("CREATEFRAME\n");
                     //change type of left to float
                     // pop keeep, pop to var, change var, push var, push keeep
-                                        printf("DEFVAR TF@rval\n");
+                    printf("DEFVAR TF@rval\n");
                     printf("DEFVAR TF@lval\n");
 
+                    printf("POPS TF@%s\n", "rval");
+                    printf("POPS TF@%s\n", "lval");
 
-                    pop_to_strname("rval");
-                    pop_to_strname("lval");
                     implicit_conversion(INT, FLOAT, "lval");
-                    push_from_strname("lval");
-                    push_from_strname("rval");
+
+                    printf("PUSHS TF@%s\n", "lval");
+                    printf("PUSHS TF@%s\n", "rval");
+
 
                     return FLOAT;
                 }
@@ -275,23 +288,11 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             }
             else if (left == FLOAT) {
                 if(right == INT){
-                    //change type
-                    create_temp_frame();
-                    //change type of left to float
-                    // pop keeep, pop to var, change var, push var, push keeep
-
-
+                    printf("CREATEFRAME\n");
                     printf("DEFVAR TF@rval\n");
-
-                    pop_to_strname("rval");
-
+                    printf("POPS TF@%s\n", "rval");
                     implicit_conversion(INT, FLOAT, "rval");
-
-                    push_from_strname("rval");
-
-
-
-
+                    printf("PUSHS TF@%s\n", "rval");
 
                     return FLOAT;
                 }
@@ -323,11 +324,40 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                 return UNDEFINED;
             }
             break;
-        case TOKEN_ID_DIVISION:
+        case TOKEN_DIVISION:
             if (left == NULL_TYPE && right == NULL_TYPE) {
                 ERROR = EXPR_ERR;
                 return UNDEFINED;
-            } else if ((left == INT || left == FLOAT || left == NULL_TYPE) && (right == INT || right == FLOAT || right == NULL_TYPE)) { 
+            }
+            else if(left == INT && right == INT){
+                return INT;
+            }
+            else if(left ==FLOAT && right == INT){
+                printf("CREATEFRAME\n");
+                printf("DEFVAR TF@rval\n");
+                printf("POPS TF@%s\n", "rval");
+                implicit_conversion(INT, FLOAT, "rval");
+                printf("PUSHS TF@%s\n", "rval");
+
+                return FLOAT;
+            }
+            else if (left == INT && right == FLOAT){
+
+                printf("CREATEFRAME\n");
+                //change type of left to float
+                // pop keeep, pop to var, change var, push var, push keeep
+                printf("DEFVAR TF@rval\n");
+                printf("DEFVAR TF@lval\n");
+
+                printf("POPS TF@%s\n", "rval");
+                printf("POPS TF@%s\n", "lval");
+
+                implicit_conversion(INT, FLOAT, "lval");
+
+                printf("PUSHS TF@%s\n", "lval");
+                printf("PUSHS TF@%s\n", "rval");
+            }
+            else if (left == FLOAT && right == FLOAT){
                 return FLOAT;
             }
             else {
@@ -335,21 +365,13 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                 return UNDEFINED;
             }
             break;
-        case TOKEN_ID_CONCAT:
-            if ((right == STRING || right == NULL_TYPE) && (left == STRING || left == NULL_TYPE)) {
-                return STRING;
-            }
-            else {
-                ERROR = EXPR_ERR;
-                return UNDEFINED;
-            }
-            break;
-        case TOKEN_ID_TRIPLE_EQUALS:
-        case TOKEN_ID_NOT_EQUALS:
-        case TOKEN_ID_LT:
-        case TOKEN_ID_GT:
-        case TOKEN_ID_LTE:
-        case TOKEN_ID_GTE:
+
+        case TOKEN_DOUBLE_EQUALS:
+        case TOKEN_NOT_EQUALS:
+        case TOKEN_LT:
+        case TOKEN_GT:
+        case TOKEN_LTE:
+        case TOKEN_GTE:
             return BOOL_TYPE;
             break;
         default:
@@ -358,7 +380,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
     }
     return UNDEFINED;
 }
-*/
+
 
 /**
  * @brief Applies rule to stack.
@@ -368,7 +390,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
  * @return true 
  * @return false 
  */
-bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add back
+bool apply_rule(expr_stack *expr_stack) {
     int number_of_items = count_breakpoint(expr_stack);
 
     bool ret_val = false;
@@ -388,7 +410,7 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
         item_right = expr_stack_pop(expr_stack);
         if (item_right->type == TERM && get_index_token(item_right->token_ptr) == 7) { // E -> id
             rule = ID;
-            //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);   //FIXME: add back
+            expression_type =  get_data_type_from_item(item_right, item_middle, item_left); 
             operationRule(rule, item_right->token_ptr); 
             ret_val = true;
         }
@@ -402,8 +424,8 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
 
         if (item_right->type == TERM && get_index_token(item_right->token_ptr) == 2 && item_middle->type == NONTERM) { // E -> E!
             rule = E_EXCLAMATION;
-            //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);   //FIXME: add back
-            //operation_rule(rule, NULL);   //FIXME: add back code generation
+            expression_type =  get_data_type_from_item(item_right, item_middle, item_left);  
+            operationRule(rule, NULL);  
             ret_val = true;
         }
         else{
@@ -428,7 +450,11 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
                 rule = E_MULTIPLE_E;
                 ret_val = true;
             }
-            else if (item_middle->token_ptr->ID == TOKEN_DIVISION) { // E -> E / E
+            else if (item_middle->token_ptr->ID == TOKEN_DIVISION &&(item_left->data_type==INT && item_right->data_type==INT)) { // E -> E / E
+                rule = E_IDIV_E;
+                ret_val = true;
+            }
+            else if (item_middle->token_ptr->ID == TOKEN_DIVISION &&(item_left->data_type==FLOAT || item_right->data_type==FLOAT)) { // E -> E / E
                 rule = E_DIVIDE_E;
                 ret_val = true;
             }
@@ -464,15 +490,16 @@ bool apply_rule(expr_stack *expr_stack/*, symtables tables*/) { //FIXME: add bac
                 ret_val = false;
             }
             if (ret_val){
-                //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);         //FIXME: add back
+                expression_type =  get_data_type_from_item(item_right, item_middle, item_left);   
                 operationRule(rule, NULL);   //generate code
             }
         }
-        else if ((item_right->type == TERM && get_index_token(item_right->token_ptr) == 2) &&
-                 (item_left->type == TERM && get_index_token(item_left->token_ptr) == 1) &&
+        else if ((item_right->type == TERM && get_index_token(item_right->token_ptr) == 1) &&
+                 (item_left->type == TERM && get_index_token(item_left->token_ptr) == 0) &&
                  (item_middle->type == NONTERM)) { // E -> (E)
             ret_val = true;
-            //expression_type =  get_data_type_from_item(item_right, item_middle, item_left, tables);       //FIXME: add back
+            expression_type =  get_data_type_from_item(item_right, item_middle, item_left);  
+                
         }
         else {
             ret_val = false;
@@ -520,7 +547,7 @@ expr_item *get_term_or_dollar(expr_stack *expr_stack) { //
  * @return true - expression is valid
  * @return false - expression is invalid
  */
-bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type *final_type, bool exp_brack) { //FIXME: add back
+bool parse_expression(lexer_T *lexer, DLL *dll, data_type *final_type, bool exp_brack) { 
     if (ERROR == LEXICAL_ERR) {
         return false;
     }
@@ -561,7 +588,7 @@ bool parse_expression(lexer_T *lexer, DLL *dll, /*symtables tables,*/ data_type 
                 new_item(new_item, &dll->activeElement->data, TERM);
                 next_token_counted();
                 check_lexer_error();
-                verbose("=   next tok %s\n", token_names[token_ptr->ID]);
+                verbose("<   next tok %s\n", token_names[token_ptr->ID]);
 
                 expr_stack_push(expr_stack, new_item);
                 if (ERROR) {
