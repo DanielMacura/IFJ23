@@ -18,6 +18,7 @@
 #include "symtable.h"
 
 
+
 #define MINTERM 1       /* Smallest terminal. */
 #define MAXTERM 255       /* Largest terminal. */
 #define MINNONTERM 256  /* Smallest nonterminal. */

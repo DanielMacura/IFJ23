@@ -15,6 +15,9 @@ extern int argument_counter;
 extern error_code ERROR;
 extern char *function_name;
 
+char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
+
+
 /**
  * @brief Define the right hand side of each production, listed back to front.
  * 
@@ -102,7 +105,8 @@ int Prod77[] = {3,0};                 // TOKEN_LBRACKET
 int Prod78[] = {4,0};                 // TOKEN_RBRACKET
 int Prod79[] = {22,0};                 // TOKEN_KW_NIL
 int Prod80[] = {41,0};                 // TOKEN_EXCLAMATIONMARK
-int Prod81[] = {256, 12, 0};                 // body
+int Prod81[] = {256, 12, 0};                 // EOL body
+int Prod82[] = {261,12,0};                 // EOL expression
 
 int *productions[] = {
     Prod0, Prod1, Prod2, Prod3, Prod4, Prod5, Prod6, Prod7, Prod8, Prod9,
@@ -113,7 +117,7 @@ int *productions[] = {
     Prod50, Prod51, Prod52, Prod53, Prod54, Prod55, Prod56, Prod57, Prod58, Prod59,
     Prod60, Prod61, Prod62, Prod63, Prod64, Prod65, Prod66, Prod67, Prod68, Prod69,
     Prod70, Prod71, Prod72, Prod73, Prod74, Prod75, Prod76, Prod77, Prod78, Prod79,
-    Prod80, Prod81
+    Prod80, Prod81, Prod82
 };
 
 int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type){
@@ -279,7 +283,7 @@ int table[24][43] = {
     { 38,37,37,-1,-1,-1,-1,37,37,-1,37,37,38,37,37,37,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,-1,45,-1,-1,-1,-1,-1,-1,-1,-1,-1,46,-1,-1,-1,-1,-1,-1,-1,47,-1,-1,-1,-1,47,47,47,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-    {-1,-1,25,24,24,-1,-1,-1,-1,-1,-1,-1,-1,-1,24,-1,-1,-1,-1,-1,-1,-1,24,-1,-1,-1,-1,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,-1},
+    {-1,-1,25,24,24,-1,-1,-1,-1,-1,-1,-1,82,-1,24,-1,-1,-1,-1,-1,-1,-1,24,-1,-1,-1,-1,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,-1},
     {-1,-1,-1,-1,50,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,52,-1,-1,-1,-1,-1,-1,-1,-1,51,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,61,-1,-1,-1,-1,58,59,60,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     {-1,-1,-1,-1,53,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,54,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
