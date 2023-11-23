@@ -15,6 +15,7 @@
 
 #include "errors.h"
 #include "lexer.h"
+#include "analyzer.h"
 
 union data_type;
 
@@ -33,5 +34,13 @@ void popToVariable(char *name);
 void generateTerm(token *token_ptr);
 
 void operationRule(rules operation, token *token_ptr);
+
+bool implicit_conversion(data_type type, data_type converted_type, char *var1);
+
+
+//////////////////////////////////////////////////
+void generateBuiltin();
+
+void builtin_write();
 
 #endif 

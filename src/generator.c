@@ -10,11 +10,20 @@
  */
 #include "generator.h"
 
+extern int argument_counter;
+
 void beginGenerator(){
     printf(".IFJcode23\n");
+
     printf("JUMP $$main\n");
+    
+    generateBuiltin();
 
     beginMain();
+}
+
+void generateBuiltin(){
+    builtin_write();
 }
 
 void endGenerator(){
@@ -95,6 +104,9 @@ void operationRule(rules operation, token *token_ptr) {
     case E_DIVIDE_E:
         printf("DIVS\n");
         break;
+    case E_IDIV_E:
+        printf("IDIVS\n");
+        break;
     case E_CONCAT_E:
         printf("POPS LF@&2\n");
         printf("POPS LF@&1\n");
@@ -161,4 +173,43 @@ void operationRule(rules operation, token *token_ptr) {
         break;
     }
 
+}
+
+bool implicit_conversion(data_type type, data_type converted_type, char *var1) {
+
+    if (converted_type == FLOAT && type == INT) {
+        printf("INT2FLOAT TF@%s TF@%s\n", var1, var1);
+    }
+    else if (converted_type == INT && type == FLOAT) {
+        printf("FLOAT2INT TF@%s TF@%s\n", var1, var1);
+    }
+    else if (converted_type == NULL_TYPE && type == STRING) {
+        printf("MOVE TF@%s string@\n",var1);
+    }
+    else if (converted_type == NULL_TYPE && type == INT) {
+        printf("MOVE TF@%s int@0\n", var1);
+    }
+    else if (converted_type == NULL_TYPE && type == FLOAT) {
+        printf("MOVE TF@%s float@0.0\n", var1);
+    }
+    else {
+        return false;
+    }
+
+    return true;
+}
+
+void builtin_write(){
+    printf("LABEL $$write\n");
+    printf("PUSHFRAME\n");
+
+    for (int i = 0; i < argument_counter; i++)
+    {
+        printf("DEFVAR LF@param%d\n", i);
+        printf("MOVE LF@param%d LF@%%d\n", i);
+        printf("WRITE LF@param%d\n", i);
+    }
+
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 }
