@@ -10,30 +10,36 @@
  */
 #include "grammar.h"
 
+extern bst_node_t *global_frame;
+extern int argument_counter;
+extern error_code ERROR;
+extern char *function_name;
+
 /**
  * @brief Define the right hand side of each production, listed back to front.
  * 
  */
+
 
 int Prod0[] = {0};                 // ε
 int Prod1[] = {256,257,7,260,257,6,259,5,4,258,3,257,2,1,0};                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 int Prod2[] = {256,257,7,260,257,6,9,7,260,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET nested_body TOKEN_RCURLYBRACKET TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 int Prod3[] = {256,257,7,260,257,6,257,261,10,0};                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 int Prod4[] = {256,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command body
-int Prod5[] = {256,263,264,0};                 // function_call end_of_command body
-int Prod6[] = {256,263,513,265,0};                 // definition end_of_command body
-int Prod7[] = {256,263,513,266,0};                 // assignment end_of_command body
+int Prod5[] = {256,263,264,514,0};                 // 514 function_call end_of_command body
+int Prod6[] = {256,263,513,265,0};                 // definition 513 end_of_command body
+int Prod7[] = {256,263,513,266,0};                 // assignment 513 end_of_command body
 int Prod8[] = {0};                 // ε
 int Prod9[] = {260,257,7,260,257,6,9,257,7,260,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
 int Prod10[] = {260,257,7,260,257,6,257,261,10,0};                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
 int Prod11[] = {260,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command nested_body
-int Prod12[] = {260,263,264,0};                 // function_call end_of_command nested_body
-int Prod13[] = {260,263,513,265,0};                 // definition end_of_command nested_body
-int Prod14[] = {260,263,513,266,0};                 // assignment end_of_command nested_body
+int Prod12[] = {260,263, 264,514,0};                 // 514 function_call end_of_command nested_body
+int Prod13[] = {260,263,513,265,0};                 // definition 513 end_of_command nested_body
+int Prod14[] = {260,263,513,266,0};                 // assignment 513 end_of_command nested_body
 int Prod15[] = {0};                 // ε
 int Prod16[] = {257,12,0};                 // TOKEN_EOL optional_enter
-int Prod17[] = {273,14,512,13,0};                 // TOKEN_KW_VAR TOKEN_VARIABLE definition_prime
-int Prod18[] = {273,14,512,15,0};                 // TOKEN_KW_LET TOKEN_VARIABLE definition_prime
+int Prod17[] = {273,14,512,13,0};                 // TOKEN_KW_VAR 512 TOKEN_VARIABLE definition_prime
+int Prod18[] = {273,14,512,15,0};                 // TOKEN_KW_LET 512 TOKEN_VARIABLE definition_prime
 int Prod19[] = {278,259,16,0};                 // TOKEN_COLON type definition_prime_prime
 int Prod20[] = {274,17,0};                 // TOKEN_EQUALS assignment_prime
 int Prod21[] = {0};                 // ε
@@ -41,7 +47,7 @@ int Prod22[] = {274,17,0};                 // TOKEN_EQUALS assignment_prime
 int Prod23[] = {274,17,14,0};                 // TOKEN_VARIABLE TOKEN_EQUALS assignment_prime
 int Prod24[] = {261,0};                 // expression
 int Prod25[] = {264,0};                 // function_call
-int Prod26[] = {4,272,3,2,0};                 // TOKEN_IDENTIFIER TOKEN_LBRACKET arguments TOKEN_RBRACKET
+int Prod26[] = {516, 4,515,272,517,3,2,0};                 // TOKEN_IDENTIFIER TOKEN_LBRACKET reset_arg_counter517 arguments 515 TOKEN_RBRACKET 516
 int Prod27[] = {270,269,0};                 // c_type postfix
 int Prod28[] = {0};                 // ε
 int Prod29[] = {18,0};                 // TOKEN_QUESTIONMARK
@@ -66,10 +72,10 @@ int Prod47[] = {277,276,0};                 // literal arguments_lit
 int Prod48[] = {275,14,0};                 // TOKEN_VARIABLE arguments_var
 int Prod49[] = {277,276,0};                 // literal arguments_lit
 int Prod50[] = {0};                 // ε
-int Prod51[] = {279,25,0};                 // TOKEN_COMMA arguments_prime
+int Prod51[] = {279,25,515,0};                 // 515 TOKEN_COMMA arguments_prime
 int Prod52[] = {272,276,16,0};                 // TOKEN_COLON literal arguments
 int Prod53[] = {0};                 // ε
-int Prod54[] = {279,25,0};                 // TOKEN_COMMA arguments_prime
+int Prod54[] = {279,25,515,0};                 // 515 TOKEN_COMMA arguments_prime
 int Prod55[] = {0};                 // ε
 int Prod56[] = {261,0};                 // expression
 int Prod57[] = {264,0};                 // function_call
@@ -110,7 +116,7 @@ int *productions[] = {
     Prod80, Prod81
 };
 
-int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression){
+int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type){
     DLLElementPtr activeElement = dll->activeElement; //remember active element
     int should_push_value_to_variable = 0;
 
@@ -122,6 +128,8 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression){
          */
         case 512:
             defineVariable(dll->activeElement->data.VAL.string);
+            frame_type parent_frame;
+            get_symbol(dll->activeElement->data.VAL.string, CREATE_IF_MISSING, &parent_frame);
             break;
         /**
          * @brief Push a value from the stack (from expression parser) to a variable.
@@ -129,7 +137,6 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression){
          *        to get the name of the variable. If a 
          */
         case 513:
-            
             dll->activeElement = ptr_before_expression; //go to the first element of the expression and look for variable token
             DLL_move_active_left(dll);  //get first token before expression
 
@@ -146,18 +153,110 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression){
                 DLL_move_active_left(dll);
             }
 
-
+            // we found a eqauls token, which means we are assigning a value to a variable, e.i. it is defined
             if (should_push_value_to_variable){
+                //we get the value from the stack and push it to the variable
                 popToVariable(dll->activeElement->data.VAL.string);
+                //we set the variable type
+                frame_type parent_frame;
+                SymbolData *variable = get_symbol(dll->activeElement->data.VAL.string, IGNORE_IF_MISSING, &parent_frame);
+                if (variable == NULL){
+                    return UNDEFINED_VAR_ERR;
+                }
+                if(variable->type == VAR_DATA){
+                    variable->data.varData.is_defined = 1;
+                    variable->data.varData.type = *final_type;
+                }
+                else{
+                    return SYNTAX_ERR;
+                }
+
             }
-
             dll->activeElement = activeElement;    //return to active element
-
+            break;
+        /**
+         * @brief When a function is called, get the identifier, create a new temporary frame, set a jump to the function,
+         *        and create a label called jump_to_function, which will be used when arguments are parsed.
+         * 
+         */
+        case 514:
+            function_name = dll->activeElement->data.VAL.string;
+            printf("CREATEFRAME\n");
+            create_frame();
+            printf("DEFVAR TF@%%retval\n");             
             break;
 
-    default:
-        return SYNTAX_ERR;
-        break;
+        /**
+         * @brief Called at each argument, pushes the argument to the stack.
+         * 
+         */
+        case 515:
+            // find which argument we are parsing, count them
+
+            DLL_move_active_left(dll);  //was called on comma or right bracket, so we need to move left
+            if(dll->activeElement->data.ID == TOKEN_LBRACKET){
+                DLL_move_active_right(dll); //move right to the first argument
+                break;
+            }
+            printf("DEFVAR TF@%%arg%d\n", argument_counter);
+            switch (dll->activeElement->data.ID)
+            {
+                case TOKEN_INTEGER:
+                    printf("MOVE TF@%%arg%d int@%s\n", argument_counter, dll->activeElement->data.VAL.string);
+                    break;
+                case TOKEN_FLOAT:
+                    printf("MOVE TF@%%arg%d float@%a\n", argument_counter,  atof(dll->activeElement->data.VAL.string));
+                    break;
+                case TOKEN_STRING:
+                    printf("MOVE TF@%%arg%d string@%s\n", argument_counter, dll->activeElement->data.VAL.string);
+                    break;
+                case TOKEN_VARIABLE:
+                    printf("MOVE TF@%%arg%d LF@%s\n", argument_counter, dll->activeElement->data.VAL.string);
+                    break;
+                case TOKEN_KW_NIL:
+                    printf("MOVE TF@%%arg%d nil@nil\n", argument_counter);
+                    break;
+                default:
+                    set_error(SYNTAX_ERR);
+                    break;
+            }
+            DLL_move_active_right(dll); //move right to the comma or right bracket
+
+
+            if (strcmp(function_name, "write") == 0)
+            {
+                printf("WRITE TF@%%arg%d\n", argument_counter);
+            }
+            argument_counter++;
+            break;
+
+        /**
+         * @brief After all arguments are parsed, we call the function handle return value.
+         * 
+         */
+        case 516:
+            if (strcmp(function_name, "write") == 0)
+            {
+                break;
+            }
+            else{
+                printf("CALL $%s\n", function_name);
+                printf("PUSHS TF@%%retval\n");
+            }
+            break;
+            
+        /**
+         * @brief Reset argument counter.
+         * 
+         */
+        case 517:
+            argument_counter = 0;
+            break;
+
+
+        default:
+            return SYNTAX_ERR;
+            break;
     }
     return SUCCESS;
 }
