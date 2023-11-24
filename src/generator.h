@@ -16,6 +16,7 @@
 #include "errors.h"
 #include "lexer.h"
 #include "analyzer.h"
+#include "symtable.h"
 
 union data_type;
 
@@ -41,6 +42,5 @@ bool implicit_conversion(data_type type, data_type converted_type, char *var1);
 //////////////////////////////////////////////////
 void generateBuiltin();
 
-void builtin_write();
 
 #endif 

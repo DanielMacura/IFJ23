@@ -11,6 +11,7 @@
 #include "generator.h"
 
 extern int argument_counter;
+extern Stack *block_stack;
 
 void beginGenerator(){
     printf(".IFJcode23\n");
@@ -35,7 +36,6 @@ void generateBuiltin(){
     printf("PUTS LF@&2\n");
     printf("RETURN\n");
 
-    builtin_write();
 }
 
 void endGenerator(){
@@ -45,45 +45,23 @@ void endGenerator(){
 
 void beginMain(){
     printf("LABEL $$main\n");
-    printf("CREATEFRAME\n");
-    printf("PUSHFRAME\n");
+
+    create_frame();
+    push_frame();
+
 }
 
 void endMain(){
     printf("LABEL $$main_end\n");
-    printf("POPFRAME\n");
+    pop_frame();
 }
 
 void defineVariable(char *name){
-    printf("DEFVAR LF@%s\n", name);
-}
-
-void generateConstant(char *name, data_type type, char *value){
-    printf("DEFVAR LF@%s\n", name);
-    switch (type)
-    {
-    case INT_NULL:
-    case INT:
-        printf("MOVE LF@%s int@0\n", name);
-        break;
-    case FLOAT_NULL:
-    case FLOAT:
-        printf("MOVE LF@%s float@0.0\n", name);
-        break;
-    case STRING_NULL:
-    case STRING:
-        printf("MOVE LF@%s string@\n", name);
-        break;
-    case NULL_TYPE:
-        printf("MOVE LF@%s nil@nil\n", name);
-        break;
-    default:
-        break;
-    }
+    printf("DEFVAR GF@%s_%d\n", name, peek(block_stack));
 }
 
 void popToVariable(char *name) {
-    printf("POPS LF@%s\n", name);
+    printf("POPS GF@%s_%d\n", name, get_block_id(name));
 }
 
 void generateTerm(token *token_ptr) {
@@ -98,7 +76,7 @@ void generateTerm(token *token_ptr) {
         printf("string@%s", token_ptr->VAL.string);
     }
     else if (token_ptr->ID == TOKEN_VARIABLE) {
-        printf("LF@%s", token_ptr->VAL.string);
+        printf("GF@%s_%d", token_ptr->VAL.string, get_block_id(token_ptr->VAL.string));
     }
 }
 
@@ -173,13 +151,9 @@ void operationRule(rules operation, token *token_ptr) {
         printf("JUMP $$coalesce\n");
         break;
         
-
-
     case ID:
         if (token_ptr->ID == TOKEN_VARIABLE) {
-            printf("PUSHS LF@");
-            printf("%s", token_ptr->VAL.string);
-            printf("\n");
+            printf("PUSHS GF@%s_%d\n",token_ptr->VAL.string, get_block_id(token_ptr->VAL.string));
         }
         else if (token_ptr->ID == TOKEN_INTEGER || token_ptr->ID == TOKEN_FLOAT || token_ptr->ID == TOKEN_STRING) {
             printf("PUSHS ");
@@ -219,19 +193,4 @@ bool implicit_conversion(data_type type, data_type converted_type, char *var1) {
     }
 
     return true;
-}
-
-void builtin_write(){
-    printf("LABEL $$write\n");
-    printf("PUSHFRAME\n");
-
-    for (int i = 0; i < argument_counter; i++)
-    {
-        printf("DEFVAR LF@param%d\n", i);
-        printf("MOVE LF@param%d LF@%%d\n", i);
-        printf("WRITE LF@param%d\n", i);
-    }
-
-    printf("POPFRAME\n");
-    printf("RETURN\n");
 }
