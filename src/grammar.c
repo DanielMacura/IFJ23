@@ -239,6 +239,63 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
             {
                 printf("WRITE TF@%%arg%d\n", argument_counter);
             }
+            else if(strcmp(function_name, "readInt") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+            }
+            else if(strcmp(function_name, "readString") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+            }
+            else if(strcmp(function_name, "readDouble") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+            }
+            else if (strcmp(function_name, "Int2Double")==0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                printf("PUSHS TF@%%arg%d\n", argument_counter);
+                printf("INT2FLOATS\n");
+                printf("POPS TF@%%retval\n");
+            }
+            else if (strcmp(function_name, "Double2Int")==0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                printf("PUSHS TF@%%arg%d\n", argument_counter);
+                printf("FLOAT2INTS\n");
+                printf("POPS TF@%%retval\n");
+            }
+            else if(strcmp(function_name, "length") == 0){
+                if (argument_counter != 0)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                printf("STRLEN TF@%%retval TF@%%arg%d\n", argument_counter);
+            }
+            else if(strcmp(function_name, "ord") == 0){
+                printf("STRI2INT TF@%%retval TF@%%arg%d int@%d\n", argument_counter, 0);
+            }
+            else if(strcmp(function_name, "chr") == 0){
+                printf("INT2CHAR TF@%%retval TF@%%arg%d\n", argument_counter);
+            }
+
+
             argument_counter++;
             break;
 
@@ -274,6 +331,23 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     break;
                 }
                 printf("READ TF@%%retval float\n");
+            }
+            //single argument functions handled in previous action
+            else if (strcmp(function_name, "Int2Double")==0 || strcmp(function_name, "Double2Int")==0 || strcmp(function_name, "length") == 0 || strcmp(function_name, "ord") == 0 || strcmp(function_name, "chr") == 0){
+                break;
+            }
+            else if(strcmp(function_name, "substring")==0){
+                if (argument_counter != 3)
+                {
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                //arg0 = string
+                //arg1 = index
+                //arg2 = end index
+                printf("PUSHS TF@%%arg%d\n", 0);
+                printf("PUSHS int@0\n");
+                printf("LTS\n");
             }
             else{
                 printf("CALL $%s\n", function_name);
