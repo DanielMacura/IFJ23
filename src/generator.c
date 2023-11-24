@@ -12,11 +12,13 @@
 
 extern int argument_counter;
 extern Stack *block_stack;
+char *defvar_string;
 
 void beginGenerator(){
+    char * defvar_string = chararray_init(0);
     printf(".IFJcode23\n");
 
-    printf("JUMP $$main\n");
+    printf("JUMP $$definitions\n");
     
     //generateBuiltin();
 
@@ -52,12 +54,24 @@ void beginMain(){
 }
 
 void endMain(){
+    printf("JUMP $$main_end\n");
+    printf("LABEL $$definitions\n");
+    if(defvar_string != NULL){
+        printf("%s", defvar_string);
+    }
+    printf("JUMP $$main\n");
+
     printf("LABEL $$main_end\n");
+
     pop_frame();
 }
 
 void defineVariable(char *name){
-    printf("DEFVAR GF@%s_%d\n", name, peek(block_stack));
+    char buffer[1024];  
+    sprintf(buffer, "DEFVAR GF@%s_%d\n", name, peek(block_stack));
+    chararray_append_string(&defvar_string, buffer);
+
+    //printf("DEFVAR GF@%s_%d\n", name, peek(block_stack));
 }
 
 void popToVariable(char *name) {
