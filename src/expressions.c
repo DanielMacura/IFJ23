@@ -209,7 +209,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             // item = hash_table_lookup(tables.local, item_right->token_ptr->VAL.string);
 
             frame_type parent_frame;
-            SymbolData *item = get_symbol(item_right->token_ptr->VAL.string, IGNORE_IF_MISSING, &parent_frame);
+            SymbolData *item = get_symbol(item_right->token_ptr->VAL.string, IGNORE_IF_MISSING, &parent_frame, NULL);
 
             if (!item) {
                 ERROR = UNDEFINED_VAR_ERR;
@@ -264,7 +264,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                 else if (right == FLOAT) {
 
 
-                    printf("CREATEFRAME\n");
+                    create_frame();
                     //change type of left to float
                     // pop keeep, pop to var, change var, push var, push keeep
                     printf("DEFVAR TF@rval\n");
@@ -288,7 +288,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             }
             else if (left == FLOAT) {
                 if(right == INT){
-                    printf("CREATEFRAME\n");
+                    create_frame();
                     printf("DEFVAR TF@rval\n");
                     printf("POPS TF@%s\n", "rval");
                     implicit_conversion(INT, FLOAT, "rval");
@@ -333,7 +333,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                 return INT;
             }
             else if(left ==FLOAT && right == INT){
-                printf("CREATEFRAME\n");
+                create_frame();
                 printf("DEFVAR TF@rval\n");
                 printf("POPS TF@%s\n", "rval");
                 implicit_conversion(INT, FLOAT, "rval");
@@ -343,7 +343,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             }
             else if (left == INT && right == FLOAT){
 
-                printf("CREATEFRAME\n");
+                create_frame();
                 //change type of left to float
                 // pop keeep, pop to var, change var, push var, push keeep
                 printf("DEFVAR TF@rval\n");
