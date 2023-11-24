@@ -16,10 +16,10 @@
 #include "verbose.h"
 
 /**
- * @brief Initializes the if_stack. Called from main.
+ * @brief Initializes the block_stack and block_stack. Called from main.
  * 
  */
-void init_if_stack();
+void init_stacks();
 
 /**
  * @brief Struct representing a stack data structure.

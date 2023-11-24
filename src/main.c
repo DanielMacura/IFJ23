@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     token *Token = malloc(sizeof(token));
     setVerbose(false);
     DLL *dll = createDLL();
-    init_if_stack();
+    init_stacks();
     symtable_init();
 
     // Lexer tests, generates tokens from the input

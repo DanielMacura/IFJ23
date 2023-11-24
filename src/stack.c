@@ -10,14 +10,18 @@
  */
 #include "stack.h"
 
-Stack *if_stack;
+Stack *block_stack;
+
+
 
 /**
- * @brief Initializes the if_stack. Called from main.
+ * @brief Initializes the block_stack. Called from main.
  * 
  */
-void init_if_stack(){
-    if_stack = createStack(100);
+void init_stacks(){
+    block_stack = createStack(100);
+
+
 }
 
 /**
