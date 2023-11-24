@@ -17,6 +17,8 @@
 #include <string.h>
 #include "token.h"
 #include "types.h"
+#include "stack.h"
+
 
 typedef enum {
 	GLOBAL_FRAME,
@@ -27,7 +29,8 @@ typedef enum {
 typedef enum {
 	CREATE_IF_MISSING, // create, insert and return an empty SymbolData
 	IGNORE_IF_MISSING, // return NULL if not found
-	ERROR_IF_MISSING // run error.h
+	ERROR_IF_MISSING, // run error.h
+	CREATE
 } symbol_missing;
 
 /**
@@ -35,6 +38,7 @@ typedef enum {
  * 
  */
 typedef struct {
+	int block_id;
 	data_type type;
 	int is_defined;
 	int was_used;
@@ -98,8 +102,16 @@ typedef struct bst_node {
 
 void symtable_init();
 
-SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up);
-SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type);
+/**
+ * @brief Get the block id of a variable marking its scope during definition
+ * 
+ * @param key 
+ * @return int 
+ */
+int get_block_id(char* key);
+
+SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up, int* block_id);
+SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type, int* block_id);
 
 int create_frame();
 int pop_frame();

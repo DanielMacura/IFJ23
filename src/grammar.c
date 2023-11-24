@@ -14,7 +14,7 @@ extern bst_node_t *global_frame;
 extern int argument_counter;
 extern error_code ERROR;
 extern char *function_name;
-extern Stack *if_stack;
+extern Stack *block_stack;
 extern int label_counter;
 
 char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
@@ -27,14 +27,14 @@ char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_bo
 int Prod0[] = {0};                 // ε
 int Prod1[] = {256,257,7,260,257,6,259,5,4,258,3,257,2,1,0};                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
 int Prod2[] = {256,257,521,7,260,257,520,6,257,9,257,7,260,519,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter 519 nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE optional_enter TOKEN_LCURLYBRACKET 520 optional_enter nested_body TOKEN_RCURLYBRACKET 521 optional_enter body
-int Prod3[] = {256,257,7,260,257,6,257,261,10,0};                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+int Prod3[] = {256,257,524,7,260,523,257,6,257,261,522,10,0};                 // TOKEN_KW_WHILE 522 expression optional_enter TOKEN_LCURLYBRACKET optional_enter 523 nested_body TOKEN_RCURLYBRACKET 524 optional_enter body
 int Prod4[] = {256,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command body
 int Prod5[] = {256,263,264,514,0};                 // 514 function_call end_of_command body
 int Prod6[] = {256,263,513,265,0};                 // definition 513 end_of_command body
 int Prod7[] = {256,263,513,266,0};                 // assignment 513 end_of_command body
 int Prod8[] = {0};                 // ε
 int Prod9[] = {260,257,521,7,260,257,520,6,257,9,257,7,260,519,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter 519 nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE optional_enter TOKEN_LCURLYBRACKET 520 optional_enter nested_body TOKEN_RCURLYBRACKET 521 optional_enter nested_body
-int Prod10[] = {260,257,7,260,257,6,257,261,10,0};                 // TOKEN_KW_WHILE expression optional_enter TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter nested_body
+int Prod10[] = {260,257,524,7,260,523,257,6,257,261,522,10,0};                 // TOKEN_KW_WHILE 522 expression optional_enter 523 TOKEN_LCURLYBRACKET optional_enter 523 nested_body TOKEN_RCURLYBRACKET 524 optional_enter nested_body
 int Prod11[] = {260,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command nested_body
 int Prod12[] = {260,263, 264,514,0};                 // 514 function_call end_of_command nested_body
 int Prod13[] = {260,263,513,265,0};                 // definition 513 end_of_command nested_body
@@ -134,7 +134,12 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
         case 512:
             defineVariable(dll->activeElement->data.VAL.string);
             frame_type parent_frame;
-            get_symbol(dll->activeElement->data.VAL.string, CREATE_IF_MISSING, &parent_frame);
+            SymbolData *symbol = get_symbol(dll->activeElement->data.VAL.string, CREATE, &parent_frame, NULL);
+            if (symbol == NULL){
+                return UNDEFINED_VAR_ERR;
+            }
+            symbol->data.varData.block_id = peek(block_stack);
+
             break;
         /**
          * @brief Push a value from the stack (from expression parser) to a variable.
@@ -164,13 +169,14 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                 popToVariable(dll->activeElement->data.VAL.string);
                 //we set the variable type
                 frame_type parent_frame;
-                SymbolData *variable = get_symbol(dll->activeElement->data.VAL.string, IGNORE_IF_MISSING, &parent_frame);
+                SymbolData *variable = get_symbol(dll->activeElement->data.VAL.string, IGNORE_IF_MISSING, &parent_frame, NULL);
                 if (variable == NULL){
                     return UNDEFINED_VAR_ERR;
                 }
                 if(variable->type == VAR_DATA){
                     variable->data.varData.is_defined = 1;
                     variable->data.varData.type = *final_type;
+
                 }
                 else{
                     return SYNTAX_ERR;
@@ -186,7 +192,8 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          */
         case 514:
             function_name = dll->activeElement->data.VAL.string;
-            printf("CREATEFRAME\n");
+            //TODO push frame here ???
+
             create_frame();
             printf("DEFVAR TF@%%retval\n");             
             break;
@@ -216,7 +223,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     printf("MOVE TF@%%arg%d string@%s\n", argument_counter, dll->activeElement->data.VAL.string);
                     break;
                 case TOKEN_VARIABLE:
-                    printf("MOVE TF@%%arg%d LF@%s\n", argument_counter, dll->activeElement->data.VAL.string);
+                    printf("MOVE TF@%%arg%d GF@%s_%d\n", argument_counter, dll->activeElement->data.VAL.string, get_block_id(dll->activeElement->data.VAL.string));
                     break;
                 case TOKEN_KW_NIL:
                     printf("MOVE TF@%%arg%d nil@nil\n", argument_counter);
@@ -270,7 +277,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
             }
             else{
                 printf("CALL $%s\n", function_name);
-                printf("PUSHS TF@%%retval\n");
+                printf("PUSHS TF@%%retval\n");  //FIXME maybe duplicate of act 518
             }
             break;
             
@@ -299,26 +306,59 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          */
         case 519:
             printf("PUSHS bool@true\n");
-            printf("JUMPIFNEQS $$else%d\n", label_counter);
-            push(if_stack, label_counter);
-            label_counter++;
+            create_frame();
+            push_frame();
+            printf("JUMPIFNEQS $$else%d\n", peek(block_stack));
+
             break;
         /**
          * @brief The second part of the if statement, the ELSE statement.
          *        
          */
         case 520:
-            printf("JUMP $$endif%d\n", peek(if_stack)); // ensures we jump over else block if we didnt jump to it from the if statemnt
-            printf("LABEL $$else%d\n", peek(if_stack));
+
+            printf("JUMP $$endif%d\n", peek(block_stack)); // ensures we jump over else block if we didnt jump to it from the if statemnt
+            printf("LABEL $$else%d\n", peek(block_stack));
+
             break;
         /**
          * @brief End of the if statement, we pop the label counter from the stack and create the endif label.
          * 
          */
         case 521:
-            printf("LABEL $$endif%d\n", pop(if_stack));
+            printf("LABEL $$endif%d\n", peek(block_stack));
+            pop_frame();
+            break;
+        /**
+         * @brief First part of a while statement, we create the label for the top while loop to check the condition.
+         *        If the condition is false, we jump to the end of the while loop.
+         * 
+         *        MUST be called before the expression is parsed
+         */
+        case 522:
+            printf("LABEL $$while%d\n", label_counter);
+            create_frame();
+            push_frame();
+            break;
+        /**
+         * @brief Second part of a while statement, after the expression is parsed.
+         * 
+         */
+        case 523:
+            printf("PUSHS bool@true\n");
+            printf("JUMPIFNEQS $$endwhile%d\n", peek(block_stack));
             break;
 
+        /**
+         * @brief Third part of a while statement, called at the end of the innerloop.
+         * 
+         */
+        case 524:
+
+            printf("JUMP $$while%d\n", peek(block_stack));
+            printf("LABEL $$endwhile%d\n", peek(block_stack));
+            pop_frame();
+            break;
 
         default:
             return SYNTAX_ERR;
