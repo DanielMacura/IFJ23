@@ -42,14 +42,20 @@ void chararray_append(char **chararray, char c) {
 
 void chararray_append_string(char **chararray, char* str) {
     char *new_str;
-    if ((new_str = malloc(strlen(*chararray) + strlen(str) + 1)) != NULL) {
-        new_str[0] = '\0'; // ensures the memory is an empty string
-        strcat(new_str, *chararray);
-        strcat(new_str, str);
+    if (*chararray == NULL) {
+        new_str = malloc(strlen(str) + 1);
+        if (new_str != NULL) {
+            strcpy(new_str, str);
+        }
+    } else {
+        new_str = malloc(strlen(*chararray) + strlen(str) + 1);
+        if (new_str != NULL) {
+            new_str[0] = '\0'; // ensures the memory is an empty string
+            strcat(new_str, *chararray);
+            strcat(new_str, str);
+        }
+        free(*chararray);
     }
-
-
-    free(*chararray);
     *chararray = new_str;
 }
 
