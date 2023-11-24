@@ -49,7 +49,9 @@ void DLL_move_active_left(DLL *dll) {
     if (dll->activeElement == NULL) {
         return;
     }
-    dll->activeElement = dll->activeElement->previousElement;
+    if(dll->activeElement->previousElement != NULL){
+        dll->activeElement = dll->activeElement->previousElement;\
+    }
 }
 
 
@@ -58,7 +60,9 @@ void DLL_move_active_right(DLL *dll) {
         dll->activeElement = dll->firstElement;
         return;
     }
-    dll->activeElement = dll->activeElement->nextElement;
+    if(dll->activeElement->nextElement != NULL){
+        dll->activeElement = dll->activeElement->nextElement;
+    }
 }
 
 
