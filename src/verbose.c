@@ -9,6 +9,7 @@
  * 
  */
 #include "verbose.h"
+extern Stack *recursion_stack;
 
 
 bool Verbose = false;
@@ -21,6 +22,19 @@ int verbose(const char * restrict format, ...) {
     if( !Verbose )
         return 0;
 
+    va_list args;
+    va_start(args, format);
+    int ret = vprintf(format, args);
+    va_end(args);
+
+    return ret;
+}
+
+int generatePrint(const char * restrict format, ...){
+    int recursion = peek(recursion_stack);
+    for (int i = 0; i < recursion; i++) {
+        printf("\t");
+    }
     va_list args;
     va_start(args, format);
     int ret = vprintf(format, args);

@@ -14,13 +14,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include "stack.h"
 /**
  * @brief Wrapper for printf that only prints if verbose is set to true
  * 
  * @param restrict Arguments for printf
  * @return int Retruns value from printf
  */
-int verbose(const char * restrict, ...);
+int verbose(const char * restrict format, ...);
 
 /**
  * @brief Sets the global variable Verbose to the given value
@@ -28,5 +29,12 @@ int verbose(const char * restrict, ...);
  * @param bool 
  */
 void setVerbose(bool);
+
+/**
+ * @brief Wrapper for printf used for generating code and adding debug information
+ * 
+ * @param ... 
+ */
+int generatePrint(const char *restrict format, ...);
 
 #endif

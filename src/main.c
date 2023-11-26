@@ -23,7 +23,8 @@
 
 
 error_code ERROR = SUCCESS;
-int label_counter = 0;  // counter for generating labels to avoid duplicates
+int block_counter = 0;  // counter for generating labels and blocks to avoid duplicates
+int recursion_counter = 0; // counter for recursion
 
 /**
  * @brief Main function of the compiler
