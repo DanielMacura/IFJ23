@@ -30,7 +30,9 @@ typedef enum {
 	CREATE_IF_MISSING, // create, insert and return an empty SymbolData
 	IGNORE_IF_MISSING, // return NULL if not found
 	ERROR_IF_MISSING, // run error.h
-	CREATE
+	CREATE,
+	FIND,
+	FIND_UNINITIALIZED
 } symbol_missing;
 
 /**
@@ -38,10 +40,12 @@ typedef enum {
  * 
  */
 typedef struct {
+	int recursion_depth;
 	int block_id;
 	data_type type;
 	int is_defined;
 	int was_used;
+	int is_initialized;			// avoid use before initialization
 } VariableData;
 
 /**
@@ -106,12 +110,12 @@ void symtable_init();
  * @brief Get the block id of a variable marking its scope during definition
  * 
  * @param key 
- * @return int 
+ * @return char 
  */
-int get_block_id(char* key);
+void get_block_id(char* key, char* identifier);
 
-SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up, int* block_id);
-SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type, int* block_id);
+SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up);
+SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type);
 
 int create_frame();
 int pop_frame();

@@ -12,8 +12,11 @@
 
 
 extern error_code ERROR;
-extern int label_counter;
+extern int block_counter;
+extern int recursion_counter;
 extern Stack *block_stack;
+extern Stack *recursion_stack;
+
 // Frame stack
 bst_node_t* global_frame = NULL;
 
@@ -40,24 +43,23 @@ void symtable_init() {
  *        higher than the current block id.
  * 
  * @param key 
- * @return int 
  */
-int get_block_id(char* key) {
+void get_block_id(char* key, char *identifier) {
   frame_type frame_type;
-  int current_block_id = peek(block_stack);
-  SymbolData *symbol =  get_symbol(key, IGNORE_IF_MISSING, &frame_type, &current_block_id);
+  SymbolData *symbol =  get_symbol(key, FIND, &frame_type);
   if (symbol) {
     if (symbol->type == FUNC_DATA)
     {
         set_error(UNDEFINED_VAR_ERR);
-        return -1;
+        return ;
     }
-    
-    return symbol->data.varData.block_id;
+    memset(identifier, 0, 1024);
+    sprintf(identifier, "%d_%d", symbol->data.varData.recursion_depth ,symbol->data.varData.block_id);
+    return;
   }
   else {
     set_error(UNDEFINED_VAR_ERR);
-    return -2;
+    return;
   }
 }
 
@@ -98,22 +100,30 @@ void set_frame_root(frame_type frame_type, bst_node_t* new_root) {
  * @param follow_up 
  * @return SymbolData* 
  */
-SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up, int* block_id) {
+SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_missing follow_up) {
     bst_node_t* frame;
-    int searched_local_frame = frame_stack_size - 1;
+    int searched_local_frame = frame_stack_size -1;
 
-    while (frame_type == LOCAL_FRAME && searched_local_frame >= 0 && follow_up == IGNORE_IF_MISSING) 
+    while (frame_type == LOCAL_FRAME && searched_local_frame >= 0 && (follow_up == FIND|| follow_up == FIND_UNINITIALIZED)) 
     {
       frame = local_frames[searched_local_frame];
       SymbolData* data = bst_search(frame, symbol);
-      if (data) {
-        if (block_id != NULL) {
-          if (data->data.varData.block_id > *block_id)
-          {
-            searched_local_frame--;
-            continue;
-          }
-        }       
+      if (data)
+      {
+        if (data->data.varData.recursion_depth > peek(recursion_stack))
+        {
+          searched_local_frame--;
+          continue;
+        }
+        else if(data->data.varData.block_id != peek(block_stack) && data->data.varData.recursion_depth == peek(recursion_stack)) {
+          searched_local_frame--;
+          continue;
+        }
+        else if(data->data.varData.is_initialized == 0 && follow_up == FIND) {
+          searched_local_frame--;
+          continue;
+        }
+
         return data;
       }
       else {
@@ -123,18 +133,22 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
         searched_local_frame--;
       }
     }
+    if (frame_type == LOCAL_FRAME  && (follow_up == FIND||follow_up == FIND_UNINITIALIZED))
+    {
+      return NULL; // we did not find the symbol in any frame in previous while loop
+    }
+    
 
     if (frame_type == LOCAL_FRAME) {
       frame = local_frames[frame_stack_size - 1];
     }
-    else if (frame_type == TEMP_FRAME) {
-        frame = temp_frame;
-    }
-    else if (frame_type == GLOBAL_FRAME) {
-        frame = global_frame;
-    }
+    // else if (frame_type == TEMP_FRAME) {
+    //     frame = temp_frame;
+    // }
+    // else if (frame_type == GLOBAL_FRAME) {
+    //     frame = global_frame;
+    // }
     else {
-        //printf("INTERNAL ERR: get_symbol_from_frame: unknown frame type %d\n", frame_type);
         set_error(INTERNAL_ERR); //FIXME: //TODO: treba pekne sa vratit, nie exit koli freeom v maine
         return NULL;
     }
@@ -151,6 +165,9 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
 	else {
     if (follow_up == CREATE_IF_MISSING || follow_up == CREATE) {
       data = calloc(1, sizeof(SymbolData));
+      data->data.varData.block_id = peek(block_stack);
+      data->data.varData.recursion_depth = peek(recursion_stack);
+      data->data.varData.is_initialized = 0;
       frame = bst_insert(&frame, symbol, data, NULL);
       set_frame_root(frame_type, frame);
       //printf("Get symbol %s from:\n", symbol);
@@ -184,26 +201,26 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
  * @param found_frame_type 
  * @return SymbolData* 
  */
-SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type, int* block_id) {
+SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found_frame_type) {
     //printf("Get symbol %s, followup %d\n", symbol, follow_up);
     SymbolData* result;
     // try find om temp frame if exists
     if (follow_up != CREATE)
     {
-      if (exists_temp_frame) {
-          //printf(".. search in TEMP FRAME\n");
-          result = get_symbol_from_frame(TEMP_FRAME, symbol, IGNORE_IF_MISSING, NULL);
-          if (result){
-              *found_frame_type = TEMP_FRAME;
-              return result;
-          }
-      }
+      // if (exists_temp_frame) {
+      //     //printf(".. search in TEMP FRAME\n");
+      //     result = get_symbol_from_frame(TEMP_FRAME, symbol, IGNORE_IF_MISSING);
+      //     if (result){
+      //         *found_frame_type = TEMP_FRAME;
+      //         return result;
+      //     }
+      // }
 
       // try find in local frame if exists
       if (frame_stack_size > 0) {
           //printf(".. search in LOCAL FRAME\n");
           if (frame_stack_size > 0/* && local_frames[frame_stack_size - 1]*/){
-            result = get_symbol_from_frame(LOCAL_FRAME, symbol, IGNORE_IF_MISSING, block_id);
+            result = get_symbol_from_frame(LOCAL_FRAME, symbol, IGNORE_IF_MISSING);
           }
           if (result){
               *found_frame_type = LOCAL_FRAME;
@@ -211,12 +228,25 @@ SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found
           }
       }
 
-      // try find in global frame if exists
-          //printf(".. search in GLOBAL FRAME\n");
-      result = get_symbol_from_frame(GLOBAL_FRAME, symbol, IGNORE_IF_MISSING, NULL);
-      if (result){
-          *found_frame_type = GLOBAL_FRAME;
-          return result;
+      // // try find in global frame if exists
+      //     //printf(".. search in GLOBAL FRAME\n");
+      // result = get_symbol_from_frame(GLOBAL_FRAME, symbol, IGNORE_IF_MISSING);
+      // if (result){
+      //     *found_frame_type = GLOBAL_FRAME;
+      //     return result;
+      // }
+    }
+
+    if (follow_up == FIND || follow_up == FIND_UNINITIALIZED){
+      if (frame_stack_size > 0) {
+          //printf(".. search in LOCAL FRAME\n");
+          if (frame_stack_size > 0/* && local_frames[frame_stack_size - 1]*/){
+            result = get_symbol_from_frame(LOCAL_FRAME, symbol, follow_up);
+          }
+          if (result){
+              *found_frame_type = LOCAL_FRAME;
+              return result;
+          }
       }
 
     }
@@ -234,26 +264,26 @@ SymbolData* get_symbol(char* symbol, symbol_missing follow_up, frame_type* found
     }
 
     if (follow_up == CREATE_IF_MISSING || follow_up == CREATE) {
-        if (exists_temp_frame) {
-            //printf(".. create in TEMP FRAME\n");
-            result = get_symbol_from_frame(TEMP_FRAME, symbol, follow_up, NULL);
-            *found_frame_type = TEMP_FRAME;
-            return result;
-        }
+        // if (exists_temp_frame) {
+        //     //printf(".. create in TEMP FRAME\n");
+        //     result = get_symbol_from_frame(TEMP_FRAME, symbol, follow_up);
+        //     *found_frame_type = TEMP_FRAME;
+        //     return result;
+        // }
 
         // try find in local frame if exists
         if (frame_stack_size > 0) {
             //printf(".. create in LOCAL FRAME\n");
-            result = get_symbol_from_frame(LOCAL_FRAME, symbol, follow_up, NULL);
+            result = get_symbol_from_frame(LOCAL_FRAME, symbol, follow_up);
             *found_frame_type = LOCAL_FRAME;
             return result;
         }
 
-        // try find in global frame if exists
-            //printf(".. create in GLOBAL FRAME\n");
-        result = get_symbol_from_frame(GLOBAL_FRAME, symbol, follow_up, NULL);
-        *found_frame_type = GLOBAL_FRAME;
-        return result;
+        // // try find in global frame if exists
+        //     //printf(".. create in GLOBAL FRAME\n");
+        // result = get_symbol_from_frame(GLOBAL_FRAME, symbol, follow_up);
+        // *found_frame_type = GLOBAL_FRAME;
+        // return result;
     }
 
     //printf("INTERNAL ERR: get_symbol: unknown follow_up resolution %d\n", follow_up);
@@ -270,7 +300,7 @@ int create_frame() {
     // TODO: Free temp if exists
     exists_temp_frame = 1;
     bst_init(&temp_frame);
-    printf("CREATEFRAME\n");
+    generatePrint("CREATEFRAME\n");
     return 0;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
 }
 
@@ -286,9 +316,12 @@ int push_frame() {
         //TODO: my_exit(55);
         return -1;
     }
-    push(block_stack, label_counter);
-    label_counter++;
-    printf("PUSHFRAME\n");
+    push(block_stack, block_counter);
+    block_counter++;
+
+    push(recursion_stack, recursion_counter);
+    recursion_counter++;
+    generatePrint("PUSHFRAME\n");
 
     local_frames[frame_stack_size] = temp_frame;
 
@@ -315,7 +348,9 @@ int pop_frame() {
         //TODO: my_exit(55);
     }
     pop(block_stack);
-    printf("POPFRAME\n");
+    pop(recursion_stack);
+    recursion_counter--;
+    generatePrint("POPFRAME\n");
 
     temp_frame = local_frames[frame_stack_size - 1];
     frame_stack_size--;
