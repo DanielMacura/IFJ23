@@ -118,7 +118,7 @@ extern int Prod78[] ;                 // TOKEN_RBRACKET
 extern int Prod79[] ;                 // TOKEN_ARROW
 extern int Prod80[] ;                 // TOKEN_LCURLYBRACKET
 
-int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type);
+void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type);
 
 extern int *productions[];
 

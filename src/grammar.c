@@ -15,7 +15,7 @@ extern int argument_counter;
 extern error_code ERROR;
 extern char *function_name;
 extern Stack *block_stack;
-extern int label_counter;
+extern int block_counter;
 
 char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
 
@@ -121,9 +121,11 @@ int *productions[] = {
     Prod80, Prod81, Prod82, Prod83
 };
 
-int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type){
+void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type){
     DLLElementPtr activeElement = dll->activeElement; //remember active element
     int should_push_value_to_variable = 0;
+    char buffer[1024];
+
 
     switch (action_num)
     {
@@ -133,13 +135,6 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          */
         case 512:
             defineVariable(dll->activeElement->data.VAL.string);
-            frame_type parent_frame;
-            SymbolData *symbol = get_symbol(dll->activeElement->data.VAL.string, CREATE, &parent_frame, NULL);
-            if (symbol == NULL){
-                return UNDEFINED_VAR_ERR;
-            }
-            symbol->data.varData.block_id = peek(block_stack);
-
             break;
         /**
          * @brief Push a value from the stack (from expression parser) to a variable.
@@ -163,23 +158,27 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                 DLL_move_active_left(dll);
             }
 
+
             // we found a eqauls token, which means we are assigning a value to a variable, e.i. it is defined
             if (should_push_value_to_variable){
-                //we get the value from the stack and push it to the variable
-                popToVariable(dll->activeElement->data.VAL.string);
-                //we set the variable type
                 frame_type parent_frame;
-                SymbolData *variable = get_symbol(dll->activeElement->data.VAL.string, IGNORE_IF_MISSING, &parent_frame, NULL);
+                SymbolData *variable = get_symbol(dll->activeElement->data.VAL.string, FIND_UNINITIALIZED, &parent_frame);
+                //we get the value from the stack and push it to the variable
+                //we set the variable type
                 if (variable == NULL){
-                    return UNDEFINED_VAR_ERR;
+                    set_error(UNDEFINED_VAR_ERR);
+                    return;
                 }
                 if(variable->type == VAR_DATA){
+
+                    variable->data.varData.is_initialized = 1;
                     variable->data.varData.is_defined = 1;
                     variable->data.varData.type = *final_type;
-
+                    popToVariable(dll->activeElement->data.VAL.string);
                 }
                 else{
-                    return SYNTAX_ERR;
+                    set_error(SYNTAX_ERR);
+                    return;
                 }
 
             }
@@ -195,7 +194,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
             //TODO push frame here ???
 
             create_frame();
-            printf("DEFVAR TF@%%retval\n");             
+            generatePrint("DEFVAR TF@%%retval\n");             
             break;
 
         /**
@@ -210,23 +209,24 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                 DLL_move_active_right(dll); //move right to the first argument
                 break;
             }
-            printf("DEFVAR TF@%%arg%d\n", argument_counter);
+            generatePrint("DEFVAR TF@%%arg%d\n", argument_counter);
             switch (dll->activeElement->data.ID)
             {
                 case TOKEN_INTEGER:
-                    printf("MOVE TF@%%arg%d int@%s\n", argument_counter, dll->activeElement->data.VAL.string);
+                    generatePrint("MOVE TF@%%arg%d int@%s\n", argument_counter, dll->activeElement->data.VAL.string);
                     break;
                 case TOKEN_FLOAT:
-                    printf("MOVE TF@%%arg%d float@%a\n", argument_counter,  strtod(dll->activeElement->data.VAL.string, NULL));
+                    generatePrint("MOVE TF@%%arg%d float@%a\n", argument_counter,  strtod(dll->activeElement->data.VAL.string, NULL));
                     break;
                 case TOKEN_STRING:
-                    printf("MOVE TF@%%arg%d string@%s\n", argument_counter, dll->activeElement->data.VAL.string);
+                    generatePrint("MOVE TF@%%arg%d string@%s\n", argument_counter, dll->activeElement->data.VAL.string);
                     break;
                 case TOKEN_VARIABLE:
-                    printf("MOVE TF@%%arg%d GF@%s_%d\n", argument_counter, dll->activeElement->data.VAL.string, get_block_id(dll->activeElement->data.VAL.string));
+                    get_block_id(dll->activeElement->data.VAL.string, buffer);
+                    generatePrint("MOVE TF@%%arg%d GF@%s_%s\n", argument_counter, dll->activeElement->data.VAL.string, buffer);
                     break;
                 case TOKEN_KW_NIL:
-                    printf("MOVE TF@%%arg%d nil@nil\n", argument_counter);
+                    generatePrint("MOVE TF@%%arg%d nil@nil\n", argument_counter);
                     break;
                 default:
                     set_error(SYNTAX_ERR);
@@ -237,7 +237,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
 
             if (strcmp(function_name, "write") == 0)
             {
-                printf("WRITE TF@%%arg%d\n", argument_counter);
+                generatePrint("WRITE TF@%%arg%d\n", argument_counter);
             }
             else if(strcmp(function_name, "readInt") == 0){
                 if (argument_counter != 0)
@@ -266,9 +266,9 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     set_error(PARAMETERS_ERR);
                     break;
                 }
-                printf("PUSHS TF@%%arg%d\n", argument_counter);
-                printf("INT2FLOATS\n");
-                printf("POPS TF@%%retval\n");
+                generatePrint("PUSHS TF@%%arg%d\n", argument_counter);
+                generatePrint("INT2FLOATS\n");
+                generatePrint("POPS TF@%%retval\n");
             }
             else if (strcmp(function_name, "Double2Int")==0){
                 if (argument_counter != 0)
@@ -276,9 +276,9 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     set_error(PARAMETERS_ERR);
                     break;
                 }
-                printf("PUSHS TF@%%arg%d\n", argument_counter);
-                printf("FLOAT2INTS\n");
-                printf("POPS TF@%%retval\n");
+                generatePrint("PUSHS TF@%%arg%d\n", argument_counter);
+                generatePrint("FLOAT2INTS\n");
+                generatePrint("POPS TF@%%retval\n");
             }
             else if(strcmp(function_name, "length") == 0){
                 if (argument_counter != 0)
@@ -286,13 +286,13 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     set_error(PARAMETERS_ERR);
                     break;
                 }
-                printf("STRLEN TF@%%retval TF@%%arg%d\n", argument_counter);
+                generatePrint("STRLEN TF@%%retval TF@%%arg%d\n", argument_counter);
             }
             else if(strcmp(function_name, "ord") == 0){
-                printf("STRI2INT TF@%%retval TF@%%arg%d int@%d\n", argument_counter, 0);
+                generatePrint("STRI2INT TF@%%retval TF@%%arg%d int@%d\n", argument_counter, 0);
             }
             else if(strcmp(function_name, "chr") == 0){
-                printf("INT2CHAR TF@%%retval TF@%%arg%d\n", argument_counter);
+                generatePrint("INT2CHAR TF@%%retval TF@%%arg%d\n", argument_counter);
             }
 
 
@@ -314,7 +314,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     set_error(PARAMETERS_ERR);
                     break;
                 }
-                printf("READ TF@%%retval int\n");
+                generatePrint("READ TF@%%retval int\n");
             }
             else if(strcmp(function_name, "readString") == 0){
                 if (argument_counter != 0)
@@ -322,7 +322,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     set_error(PARAMETERS_ERR);
                     break;
                 }
-                printf("READ TF@%%retval string\n");
+                generatePrint("READ TF@%%retval string\n");
             }
             else if(strcmp(function_name, "readDouble") == 0){
                 if (argument_counter != 0)
@@ -330,7 +330,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                     set_error(PARAMETERS_ERR);
                     break;
                 }
-                printf("READ TF@%%retval float\n");
+                generatePrint("READ TF@%%retval float\n");
             }
             //single argument functions handled in previous action
             else if (strcmp(function_name, "Int2Double")==0 || strcmp(function_name, "Double2Int")==0 || strcmp(function_name, "length") == 0 || strcmp(function_name, "ord") == 0 || strcmp(function_name, "chr") == 0){
@@ -345,13 +345,13 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
                 //arg0 = string
                 //arg1 = index
                 //arg2 = end index
-                printf("PUSHS TF@%%arg%d\n", 0);
-                printf("PUSHS int@0\n");
-                printf("LTS\n");
+                generatePrint("PUSHS TF@%%arg%d\n", 0);
+                generatePrint("PUSHS int@0\n");
+                generatePrint("LTS\n");
             }
             else{
-                printf("CALL $%s\n", function_name);
-                printf("PUSHS TF@%%retval\n");  //FIXME maybe duplicate of act 518
+                generatePrint("CALL $%s\n", function_name);
+                generatePrint("PUSHS TF@%%retval\n");  //FIXME maybe duplicate of act 518
             }
             break;
             
@@ -368,7 +368,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          * 
          */
         case 518:
-            printf("PUSHS TF@%%retval\n");
+            generatePrint("PUSHS TF@%%retval\n");
             break;
         break;
         /**
@@ -379,10 +379,10 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          * 
          */
         case 519:
-            printf("PUSHS bool@true\n");
+            generatePrint("PUSHS bool@true\n");
             create_frame();
             push_frame();
-            printf("JUMPIFNEQS $$else%d\n", peek(block_stack));
+            generatePrint("JUMPIFNEQS $$else%d\n", peek(block_stack));
 
             break;
         /**
@@ -391,8 +391,8 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          */
         case 520:
 
-            printf("JUMP $$endif%d\n", peek(block_stack)); // ensures we jump over else block if we didnt jump to it from the if statemnt
-            printf("LABEL $$else%d\n", peek(block_stack));
+            generatePrint("JUMP $$endif%d\n", peek(block_stack)); // ensures we jump over else block if we didnt jump to it from the if statemnt
+            generatePrint("LABEL $$else%d\n", peek(block_stack));
 
             break;
         /**
@@ -400,7 +400,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          * 
          */
         case 521:
-            printf("LABEL $$endif%d\n", peek(block_stack));
+            generatePrint("LABEL $$endif%d\n", peek(block_stack));
             pop_frame();
             break;
         /**
@@ -410,7 +410,7 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          *        MUST be called before the expression is parsed
          */
         case 522:
-            printf("LABEL $$while%d\n", label_counter);
+            generatePrint("LABEL $$while%d\n", block_counter);
             create_frame();
             push_frame();
             break;
@@ -419,8 +419,8 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          * 
          */
         case 523:
-            printf("PUSHS bool@true\n");
-            printf("JUMPIFNEQS $$endwhile%d\n", peek(block_stack));
+            generatePrint("PUSHS bool@true\n");
+            generatePrint("JUMPIFNEQS $$endwhile%d\n", peek(block_stack));
             break;
 
         /**
@@ -429,16 +429,17 @@ int actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_
          */
         case 524:
 
-            printf("JUMP $$while%d\n", peek(block_stack));
-            printf("LABEL $$endwhile%d\n", peek(block_stack));
+            generatePrint("JUMP $$while%d\n", peek(block_stack));
+            generatePrint("LABEL $$endwhile%d\n", peek(block_stack));
             pop_frame();
             break;
 
         default:
-            return SYNTAX_ERR;
+            set_error(SYNTAX_ERR);
+            return;
             break;
     }
-    return SUCCESS;
+    return;
 }
 int table[24][43] = {
     { 1,1,5,-1,-1,-1,-1,-1,2,-1,3,4,81,6,7,6,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
