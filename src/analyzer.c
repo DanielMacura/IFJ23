@@ -37,10 +37,10 @@ int runSyntax(lexer_T  *lexer, DLL *dll){
 
         if(ISACT(popped)){                          // the symbol at top of stack represents an action
             verbose("Action: %d\n", popped);
-            int errorno = actions(popped, dll, token_ptr_before, &final_type);
-            if(errorno != SUCCESS){
-                fprintf(stderr, "Error: %d\n", errorno);
-                return errorno;
+            actions(popped, dll, token_ptr_before, &final_type);
+            if(ERROR != SUCCESS){
+                fprintf(stderr, "Error: %d\n", ERROR);
+                return ERROR;
             }
         }
         else if (ISNONTERM(popped)){                // the symbol at top of stack represents a nonterminal
