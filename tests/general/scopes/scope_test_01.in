@@ -1,0 +1,8 @@
+var i = 0;
+while(i == 0){
+    write(i)
+    i = i + 1
+    let i = i + 1
+    write(i)
+}
+write(i)

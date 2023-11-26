@@ -1,0 +1,6 @@
+var a = 29
+var b = 13
+
+var c = (2*(a + b)-4)/4
+
+write(c, "\n")
