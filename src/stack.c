@@ -11,6 +11,7 @@
 #include "stack.h"
 
 Stack *block_stack;
+Stack *recursion_stack;
 
 
 
@@ -20,8 +21,7 @@ Stack *block_stack;
  */
 void init_stacks(){
     block_stack = createStack(100);
-
-
+    recursion_stack = createStack(100);
 }
 
 /**

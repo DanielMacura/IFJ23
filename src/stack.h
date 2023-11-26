@@ -16,7 +16,7 @@
 #include "verbose.h"
 
 /**
- * @brief Initializes the block_stack and block_stack. Called from main.
+ * @brief Initializes the block_stack and recursion_stack. Called from main.
  * 
  */
 void init_stacks();
