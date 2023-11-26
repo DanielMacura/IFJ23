@@ -209,7 +209,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             // item = hash_table_lookup(tables.local, item_right->token_ptr->VAL.string);
 
             frame_type parent_frame;
-            SymbolData *item = get_symbol(item_right->token_ptr->VAL.string, IGNORE_IF_MISSING, &parent_frame, NULL);
+            SymbolData *item = get_symbol(item_right->token_ptr->VAL.string, FIND, &parent_frame);
 
             if (!item) {
                 ERROR = UNDEFINED_VAR_ERR;
@@ -267,16 +267,16 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                     create_frame();
                     //change type of left to float
                     // pop keeep, pop to var, change var, push var, push keeep
-                    printf("DEFVAR TF@rval\n");
-                    printf("DEFVAR TF@lval\n");
+                    generatePrint("DEFVAR TF@rval\n");
+                    generatePrint("DEFVAR TF@lval\n");
 
-                    printf("POPS TF@%s\n", "rval");
-                    printf("POPS TF@%s\n", "lval");
+                    generatePrint("POPS TF@%s\n", "rval");
+                    generatePrint("POPS TF@%s\n", "lval");
 
                     implicit_conversion(INT, FLOAT, "lval");
 
-                    printf("PUSHS TF@%s\n", "lval");
-                    printf("PUSHS TF@%s\n", "rval");
+                    generatePrint("PUSHS TF@%s\n", "lval");
+                    generatePrint("PUSHS TF@%s\n", "rval");
 
 
                     return FLOAT;
@@ -289,10 +289,10 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             else if (left == FLOAT) {
                 if(right == INT){
                     create_frame();
-                    printf("DEFVAR TF@rval\n");
-                    printf("POPS TF@%s\n", "rval");
+                    generatePrint("DEFVAR TF@rval\n");
+                    generatePrint("POPS TF@%s\n", "rval");
                     implicit_conversion(INT, FLOAT, "rval");
-                    printf("PUSHS TF@%s\n", "rval");
+                    generatePrint("PUSHS TF@%s\n", "rval");
 
                     return FLOAT;
                 }
@@ -334,10 +334,10 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             }
             else if(left ==FLOAT && right == INT){
                 create_frame();
-                printf("DEFVAR TF@rval\n");
-                printf("POPS TF@%s\n", "rval");
+                generatePrint("DEFVAR TF@rval\n");
+                generatePrint("POPS TF@%s\n", "rval");
                 implicit_conversion(INT, FLOAT, "rval");
-                printf("PUSHS TF@%s\n", "rval");
+                generatePrint("PUSHS TF@%s\n", "rval");
 
                 return FLOAT;
             }
@@ -346,16 +346,16 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                 create_frame();
                 //change type of left to float
                 // pop keeep, pop to var, change var, push var, push keeep
-                printf("DEFVAR TF@rval\n");
-                printf("DEFVAR TF@lval\n");
+                generatePrint("DEFVAR TF@rval\n");
+                generatePrint("DEFVAR TF@lval\n");
 
-                printf("POPS TF@%s\n", "rval");
-                printf("POPS TF@%s\n", "lval");
+                generatePrint("POPS TF@%s\n", "rval");
+                generatePrint("POPS TF@%s\n", "lval");
 
                 implicit_conversion(INT, FLOAT, "lval");
 
-                printf("PUSHS TF@%s\n", "lval");
-                printf("PUSHS TF@%s\n", "rval");
+                generatePrint("PUSHS TF@%s\n", "lval");
+                generatePrint("PUSHS TF@%s\n", "rval");
             }
             else if (left == FLOAT && right == FLOAT){
                 return FLOAT;

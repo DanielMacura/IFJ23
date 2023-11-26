@@ -12,13 +12,15 @@
 
 extern int argument_counter;
 extern Stack *block_stack;
+extern Stack *recursion_stack;
+extern int ERROR;
 char *defvar_string;
 
 void beginGenerator(){
     char * defvar_string = chararray_init(0);
-    printf(".IFJcode23\n");
+    generatePrint(".IFJcode23\n");
 
-    printf("JUMP $$definitions\n");
+    generatePrint("JUMP $$definitions\n");
     
     //generateBuiltin();
 
@@ -28,25 +30,25 @@ void beginGenerator(){
 void generateBuiltin(){
 
     // Coalesce
-    printf("LABEL $$coalesce\n");
-    printf("POPS LF@&1\n");
-    printf("POPS LF@&2\n");
-    printf("JUMPIFEQS $$coalesce_end\n");
-    printf("PUSHS LF@&1\n");
-    printf("RETURN\n");
-    printf("LABEL $$coalesce_end\n");
-    printf("PUTS LF@&2\n");
-    printf("RETURN\n");
+    generatePrint("LABEL $$coalesce\n");
+    generatePrint("POPS LF@&1\n");
+    generatePrint("POPS LF@&2\n");
+    generatePrint("JUMPIFEQS $$coalesce_end\n");
+    generatePrint("PUSHS LF@&1\n");
+    generatePrint("RETURN\n");
+    generatePrint("LABEL $$coalesce_end\n");
+    generatePrint("PUTS LF@&2\n");
+    generatePrint("RETURN\n");
 
 }
 
 void endGenerator(){
-    printf("LABEL $$end\n");
-    printf("EXIT int@0\n");
+    generatePrint("LABEL $$end\n");
+    generatePrint("EXIT int@0\n");
 }
 
 void beginMain(){
-    printf("LABEL $$main\n");
+    generatePrint("LABEL $$main\n");
 
     create_frame();
     push_frame();
@@ -54,128 +56,142 @@ void beginMain(){
 }
 
 void endMain(){
-    printf("JUMP $$main_end\n");
-    printf("LABEL $$definitions\n");
+    generatePrint("JUMP $$main_end\n");
+    generatePrint("LABEL $$definitions\n");
     if(defvar_string != NULL){
-        printf("%s", defvar_string);
+        generatePrint("%s", defvar_string);
     }
-    printf("JUMP $$main\n");
+    generatePrint("JUMP $$main\n");
 
-    printf("LABEL $$main_end\n");
+    generatePrint("LABEL $$main_end\n");
 
     pop_frame();
 }
 
 void defineVariable(char *name){
     char buffer[1024];  
-    sprintf(buffer, "DEFVAR GF@%s_%d\n", name, peek(block_stack));
+    sprintf(buffer, "DEFVAR GF@%s_%d_%d\n", name, peek(recursion_stack), peek(block_stack));
     chararray_append_string(&defvar_string, buffer);
 
-    //printf("DEFVAR GF@%s_%d\n", name, peek(block_stack));
+    frame_type parent_frame;
+    SymbolData *symbol = get_symbol(name, CREATE, &parent_frame);
+    if (symbol == NULL){
+
+        set_error(UNDEFINED_VAR_ERR);
+        return;
+    }
+
+
 }
 
 void popToVariable(char *name) {
-    printf("POPS GF@%s_%d\n", name, get_block_id(name));
+    char buffer[1024];
+    get_block_id(name, buffer);
+    generatePrint("POPS GF@%s_%s\n", name, buffer);
 }
 
 void generateTerm(token *token_ptr) {
 
     if (token_ptr->ID == TOKEN_INTEGER) {
-        printf("int@%s", token_ptr->VAL.string);
+        generatePrint("int@%s", token_ptr->VAL.string);
     }
     else if (token_ptr->ID == TOKEN_FLOAT) {
-        printf("float@%a", atof(token_ptr->VAL.string));
+        generatePrint("float@%a", atof(token_ptr->VAL.string));
     }
     else if (token_ptr->ID == TOKEN_STRING) {
-        printf("string@%s", token_ptr->VAL.string);
+        generatePrint("string@%s", token_ptr->VAL.string);
     }
     else if (token_ptr->ID == TOKEN_VARIABLE) {
-        printf("GF@%s_%d", token_ptr->VAL.string, get_block_id(token_ptr->VAL.string));
+        char buffer[1024];
+        get_block_id(token_ptr->VAL.string, buffer);
+        generatePrint("GF@%s_%s", token_ptr->VAL.string, buffer);
     }
 }
 
 void operationRule(rules operation, token *token_ptr) {
     switch (operation) {
     case E_PLUS_E:
-        printf("ADDS\n");
+        generatePrint("ADDS\n");
         break;
     case E_MINUS_E:
-        printf("SUBS\n");
+        generatePrint("SUBS\n");
         break;
     case E_MULTIPLE_E:
-        printf("MULS\n");
+        generatePrint("MULS\n");
         break;
     case E_DIVIDE_E:
-        printf("DIVS\n");
+        generatePrint("DIVS\n");
         break;
     case E_IDIV_E:
-        printf("IDIVS\n");
+        generatePrint("IDIVS\n");
         break;
     case E_CONCAT_E:
-        printf("POPS LF@&2\n");
-        printf("POPS LF@&1\n");
-        printf("CONCAT LF@tempstring LF@&1 LF@&2\n");
-        printf("PUSHS LF@tempstring\n");
+        generatePrint("POPS LF@&2\n");
+        generatePrint("POPS LF@&1\n");
+        generatePrint("CONCAT LF@tempstring LF@&1 LF@&2\n");
+        generatePrint("PUSHS LF@tempstring\n");
         break;
     case E_LT_E:
-        printf("LTS\n");
+        generatePrint("LTS\n");
         break;
     case E_GT_E:
-        printf("GTS\n");
+        generatePrint("GTS\n");
         break;
     case E_EQ_E:
-        printf("EQS\n");
+        generatePrint("EQS\n");
         break;
     case E_NEQ_E:
-        printf("EQS\n");
-        printf("NOTS\n");
+        generatePrint("EQS\n");
+        generatePrint("NOTS\n");
         break;
     case E_LEQ_E:
-        printf("PUSHS LF@&1\n");
-        printf("PUSHS LF@&2\n");
-        printf("PUSHS LF@&1\n");
-        printf("PUSHS LF@&2\n");
-        printf("EQS\n");
-        printf("POPS LF@tempbool\n");
-        printf("LTS\n");
-        printf("PUSHS LF@tempbool\n");
-        printf("ORS\n");
-        printf("PUSHS bool@true\n");
-        printf("EQS\n");
+        generatePrint("PUSHS LF@&1\n");
+        generatePrint("PUSHS LF@&2\n");
+        generatePrint("PUSHS LF@&1\n");
+        generatePrint("PUSHS LF@&2\n");
+        generatePrint("EQS\n");
+        generatePrint("POPS LF@tempbool\n");
+        generatePrint("LTS\n");
+        generatePrint("PUSHS LF@tempbool\n");
+        generatePrint("ORS\n");
+        generatePrint("PUSHS bool@true\n");
+        generatePrint("EQS\n");
         break;
     case E_GEQ_E:
-        printf("PUSHS LF@&1\n");
-        printf("PUSHS LF@&2\n");
-        printf("PUSHS LF@&1\n");
-        printf("PUSHS LF@&2\n");
-        printf("EQS\n");
-        printf("POPS LF@tempbool\n");
-        printf("GTS\n");
-        printf("PUSHS LF@tempbool\n");
-        printf("ORS\n");
-        printf("PUSHS bool@true\n");
-        printf("EQS\n");
+        generatePrint("PUSHS LF@&1\n");
+        generatePrint("PUSHS LF@&2\n");
+        generatePrint("PUSHS LF@&1\n");
+        generatePrint("PUSHS LF@&2\n");
+        generatePrint("EQS\n");
+        generatePrint("POPS LF@tempbool\n");
+        generatePrint("GTS\n");
+        generatePrint("PUSHS LF@tempbool\n");
+        generatePrint("ORS\n");
+        generatePrint("PUSHS bool@true\n");
+        generatePrint("EQS\n");
         break;
     case E_COALESCE_E:
-        printf("PUSHS LF@&1\n");
-        printf("PUSHS nil@nil\n");
-        printf("EQS\n");
-        printf("PUSHS LF@&2\n");
-        printf("PUSHS LF@&1\n");
-        printf("JUMP $$coalesce\n");
+        generatePrint("PUSHS LF@&1\n");
+        generatePrint("PUSHS nil@nil\n");
+        generatePrint("EQS\n");
+        generatePrint("PUSHS LF@&2\n");
+        generatePrint("PUSHS LF@&1\n");
+        generatePrint("JUMP $$coalesce\n");
         break;
         
     case ID:
         if (token_ptr->ID == TOKEN_VARIABLE) {
-            printf("PUSHS GF@%s_%d\n",token_ptr->VAL.string, get_block_id(token_ptr->VAL.string));
+            char buffer[1024];
+            get_block_id(token_ptr->VAL.string, buffer);
+            generatePrint("PUSHS GF@%s_%s\n",token_ptr->VAL.string, buffer);
         }
         else if (token_ptr->ID == TOKEN_INTEGER || token_ptr->ID == TOKEN_FLOAT || token_ptr->ID == TOKEN_STRING) {
-            printf("PUSHS ");
+            generatePrint("PUSHS ");
             generateTerm(token_ptr);
-            printf("\n");
+            generatePrint("\n");
         }
         else if (token_ptr->ID == TOKEN_KW_NIL) {
-            printf("PUSHS nil@nil\n");
+            generatePrint("PUSHS nil@nil\n");
         }
         break;
     default:
@@ -188,19 +204,19 @@ void operationRule(rules operation, token *token_ptr) {
 bool implicit_conversion(data_type type, data_type converted_type, char *var1) {
 
     if (converted_type == FLOAT && type == INT) {
-        printf("INT2FLOAT TF@%s TF@%s\n", var1, var1);
+        generatePrint("INT2FLOAT TF@%s TF@%s\n", var1, var1);
     }
     else if (converted_type == INT && type == FLOAT) {
-        printf("FLOAT2INT TF@%s TF@%s\n", var1, var1);
+        generatePrint("FLOAT2INT TF@%s TF@%s\n", var1, var1);
     }
     else if (converted_type == NULL_TYPE && type == STRING) {
-        printf("MOVE TF@%s string@\n",var1);
+        generatePrint("MOVE TF@%s string@\n",var1);
     }
     else if (converted_type == NULL_TYPE && type == INT) {
-        printf("MOVE TF@%s int@0\n", var1);
+        generatePrint("MOVE TF@%s int@0\n", var1);
     }
     else if (converted_type == NULL_TYPE && type == FLOAT) {
-        printf("MOVE TF@%s float@0.0\n", var1);
+        generatePrint("MOVE TF@%s float@0.0\n", var1);
     }
     else {
         return false;
