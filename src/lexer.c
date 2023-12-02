@@ -156,7 +156,8 @@ void clean_string(char **str) {
 
     char *new_str = chararray_init(str_len +1);
     if (new_str == NULL) {
-        // TODO error
+        set_error(INTERNAL_ERR);
+        return;
     }
 
     size_t i;
