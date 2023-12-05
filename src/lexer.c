@@ -587,6 +587,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 lexer->state = STATE_START;
                 Token->ID = TOKEN_INTEGER;
                 Token->VAL.string = value;
+                convert_exponent_number(Token);
                 return SUCCESS;
             }
             break;
@@ -631,6 +632,7 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
                 lexer->state = STATE_START;
                 Token->ID = TOKEN_INTEGER;
                 Token->VAL.string = value;
+                convert_exponent_number(Token);
                 return SUCCESS;
             }
             break;
@@ -823,21 +825,19 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
 /**
  * @brief Converts the exponent number to int or double and saves it to the token value 
  * 
- * @param value The value of the token
  * @param TOKEN The token to be filled with the converted value
  */
 
-void convert_exponent_number(char *value, token *TOKEN){
-    char expNumber[] = value;
+void convert_exponent_number( token *TOKEN){
+    char *expNumber = TOKEN->VAL.string;
     double d_number;
-    char final_string[1000];
     int i_number;
     bool comma = false;
     bool isDecimal = false;
     int number_after_e;
     char number_after_e_str[10] = "";
     int exponentSign = 1; // 1 for '+', -1 for '-'
-    int decimalDigits = 0; 
+    int decimalDigits = 0;
 
     // Controlling the number of digits after the decimal point
     for (int i = 0; expNumber[i] != '\0'; i++) {
@@ -866,11 +866,9 @@ void convert_exponent_number(char *value, token *TOKEN){
     // Convert to double or int and save to token
     sscanf(expNumber, "%lf", &d_number);
     if (isDecimal) {
-        sprintf(final_string, "%f", d_number); 
-        TOKEN->VAL.string = final_string;
+        sprintf(TOKEN->VAL.string, "%.*lf",DECIMAL_DIG, d_number); 
     } else {
         i_number = (int)d_number;
-        sprintf(final_string, "%d", i_number); 
-        TOKEN->VAL.string = final_string;
+        sprintf(TOKEN->VAL.string, "%d", i_number); 
     }
 }

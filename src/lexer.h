@@ -20,6 +20,7 @@
 #include "token.h"
 #include "errors.h"
 #include "chararray.h"
+#include <float.h>
 
 
 /**
@@ -147,5 +148,14 @@ double str_to_doule(char *src);
  * @param str 
  */
 void clean_string(char **src); 
+
+
+/**
+ * @brief Converts the exponent number to int or double and saves it to the token value 
+ * 
+ * @param TOKEN The token to be filled with the converted value
+ */
+
+void convert_exponent_number(token *TOKEN);
 
 #endif
