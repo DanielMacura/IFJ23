@@ -820,8 +820,14 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
     }
 }
 
+/**
+ * @brief Converts the exponent number to int or double and saves it to the token value 
+ * 
+ * @param value The value of the token
+ * @param TOKEN The token to be filled with the converted value
+ */
 
-void exponent_num_conversion(char *value, token *TOKEN){
+void convert_exponent_number(char *value, token *TOKEN){
     char expNumber[] = value;
     double d_number;
     char final_string[1000];
@@ -857,7 +863,7 @@ void exponent_num_conversion(char *value, token *TOKEN){
         isDecimal = true;
     }
 
-    // Convert to double or int
+    // Convert to double or int and save to token
     sscanf(expNumber, "%lf", &d_number);
     if (isDecimal) {
         sprintf(final_string, "%f", d_number); 
