@@ -819,3 +819,58 @@ error_code lexer_resolve_next_token(lexer_T *lexer, token *Token) {
         }
     }
 }
+
+/**
+ * @brief Converts the exponent number to int or double and saves it to the token value 
+ * 
+ * @param value The value of the token
+ * @param TOKEN The token to be filled with the converted value
+ */
+
+void convert_exponent_number(char *value, token *TOKEN){
+    char expNumber[] = value;
+    double d_number;
+    char final_string[1000];
+    int i_number;
+    bool comma = false;
+    bool isDecimal = false;
+    int number_after_e;
+    char number_after_e_str[10] = "";
+    int exponentSign = 1; // 1 for '+', -1 for '-'
+    int decimalDigits = 0; 
+
+    // Controlling the number of digits after the decimal point
+    for (int i = 0; expNumber[i] != '\0'; i++) {
+        if (expNumber[i] == '.') {
+            comma = true;
+            continue;
+        }
+        if (comma && tolower(expNumber[i]) != 'e') {
+            decimalDigits++;
+        }
+        if (tolower(expNumber[i]) == 'e') {
+            if (expNumber[i + 1] == '-') {
+                exponentSign = -1;
+            }
+            strcat(number_after_e_str, &expNumber[i + 1 + (expNumber[i + 1] == '+' || expNumber[i + 1] == '-')]);
+            break;
+        }
+    }
+    number_after_e = atoi(number_after_e_str) * exponentSign;
+
+    // Check if the number is decimal
+    if (number_after_e < decimalDigits) {
+        isDecimal = true;
+    }
+
+    // Convert to double or int and save to token
+    sscanf(expNumber, "%lf", &d_number);
+    if (isDecimal) {
+        sprintf(final_string, "%f", d_number); 
+        TOKEN->VAL.string = final_string;
+    } else {
+        i_number = (int)d_number;
+        sprintf(final_string, "%d", i_number); 
+        TOKEN->VAL.string = final_string;
+    }
+}
