@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
      * @brief Add built-in functions to the symbol table
      * 
      */
-    char* builtins[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "lenght", "substring", "ord", "chr"};
+    char* builtins[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "length", "substring", "ord", "chr"};
     for (int i = 0; i < 10; i++)
     {
         get_symbol_from_frame(GLOBAL_FRAME, builtins[i], CREATE);
@@ -82,6 +82,8 @@ int main(int argc, char **argv) {
     }
     else{
         runSyntax(lexer, dll);
+        symtable_check_functions();
     }
-        return ERROR;
+
+    return ERROR;
 } 
