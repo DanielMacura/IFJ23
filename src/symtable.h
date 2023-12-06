@@ -66,7 +66,7 @@ typedef struct
  */
 typedef struct {
 	int is_declared;
-	int is_defined;
+	int is_called;
 
 	int num_of_params;
 	parameter *parameters;
@@ -136,4 +136,10 @@ void right_rotate(bst_node_t* node);
 void rotate_up(bst_node_t* node);
 // TODO: Add bst_free(bst_node_t *node) to free key and value as well
 
+
+/**
+ * @brief Iterates through the symbol table and checks if all functions were defined
+ * 
+ */
+void symtable_check_functions();
 #endif

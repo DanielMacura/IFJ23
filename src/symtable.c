@@ -39,6 +39,43 @@ void symtable_init() {
 }
 
 /**
+ * @brief Iterates through the symbol table and checks if all functions were defined
+ * 
+ */
+void symtable_check_functions(){
+  bst_node_t* node = global_frame;
+  //iterate dfs through the tree
+  while (node != NULL)
+  {
+    if (node->value->type == FUNC_DATA && node->value->data.funcData.is_declared == 0 )
+    {
+      set_error(UNDEFINED_FUNCTION_ERR);
+      return;
+    }
+    if (node->left != NULL)
+    {
+      node = node->left;
+    }
+    else if (node->right != NULL)
+    {
+      node = node->right;
+    }
+    else
+    {
+      while (node->parent != NULL && (node->parent->right == NULL || node->parent->right == node))
+      {
+        node = node->parent;
+      }
+      if (node->parent == NULL)
+      {
+        break;
+      }
+      node = node->parent->right;
+    }
+  }
+}
+
+/**
  * @brief Get the highest block id of a variable marking its scope during definition, that IS NOT
  *        higher than the current block id.
  * 
@@ -158,7 +195,7 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
 
   if (data)
   { 
-    if(data && frame_type == GLOBAL_FRAME && follow_up == CREATE) {    // Function redefinition
+    if(data && frame_type == GLOBAL_FRAME && follow_up == CREATE && data->data.funcData.is_declared) {    // Function redefinition
       set_error(UNDEFINED_FUNCTION_ERR);
       return NULL;
     }
@@ -175,10 +212,21 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
       set_frame_root(frame_type, frame);
       return data;
     }
-    else if(frame_type == GLOBAL_FRAME && (follow_up == CREATE_IF_MISSING || follow_up == CREATE)){
+    else if(frame_type == GLOBAL_FRAME && (follow_up == CREATE)){   // Function definition
       data = calloc(1, sizeof(SymbolData));
       data->type = FUNC_DATA;
       frame = bst_insert(&frame, symbol, data, NULL);
+      data->data.funcData.is_declared = 1;
+      data->data.funcData.is_called = 0;
+      set_frame_root(frame_type, frame);
+      return data;
+    }
+    else if(frame_type == GLOBAL_FRAME && (follow_up == CREATE_IF_MISSING )){ // Function was called, add to symtable but do not define
+      data = calloc(1, sizeof(SymbolData));
+      data->type = FUNC_DATA;
+      frame = bst_insert(&frame, symbol, data, NULL);
+      data->data.funcData.is_called = 0;
+      data->data.funcData.is_declared = 0;
       set_frame_root(frame_type, frame);
       return data;
     }
@@ -187,7 +235,6 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
       return NULL;
     }
     else if ((follow_up == FIND ) && frame_type == LOCAL_FRAME){   // Variable not defined
-    
       set_error(UNDEFINED_VAR_ERR);
       return NULL;
     }
