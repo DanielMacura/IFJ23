@@ -15,7 +15,9 @@ extern int argument_counter;
 extern error_code ERROR;
 extern char *function_name;
 extern Stack *block_stack;
+extern Stack *recursion_stack;
 extern int block_counter;
+char defined_function_name[1024];
 
 char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_body","expression","return","end_of_command","function_call","definition","assignment","discard_parameter_name","parameters_prime","c_type","postfix","end_of_command_prime","arguments","definition_prime","assignment_prime","arguments_var","literal","arguments_lit","definition_prime_prime","arguments_prime"};
 
@@ -25,7 +27,7 @@ char* nonterminals[24] = {"body","optional_enter","parameters","type","nested_bo
  * 
  */
 int Prod0[] = {0};                 // ε
-int Prod1[] = {256,257,7,260,257,6,259,5,4,258,3,257,2,1,0};                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET optional_enter body
+int Prod1[] = {256,257,528,7,260,257,6,527,259,5,4,258,3,257,525,2,1,0};                 // TOKEN_KW_FUNC TOKEN_IDENTIFIER 525 optional_enter TOKEN_LBRACKET parameters TOKEN_RBRACKET TOKEN_ARROW type 527 TOKEN_LCURLYBRACKET optional_enter nested_body TOKEN_RCURLYBRACKET 528 optional_enter body
 int Prod2[] = {256,257,521,7,260,257,520,6,257,9,257,7,260,519,257,6,257,261,8,0};                 // TOKEN_KW_IF expression optional_enter TOKEN_LCURLYBRACKET optional_enter 519 nested_body TOKEN_RCURLYBRACKET optional_enter TOKEN_KW_ELSE optional_enter TOKEN_LCURLYBRACKET 520 optional_enter nested_body TOKEN_RCURLYBRACKET 521 optional_enter body
 int Prod3[] = {256,257,524,7,260,523,257,6,257,261,522,10,0};                 // TOKEN_KW_WHILE 522 expression optional_enter TOKEN_LCURLYBRACKET optional_enter 523 nested_body TOKEN_RCURLYBRACKET 524 optional_enter body
 int Prod4[] = {256,263,262,11,0};                 // TOKEN_KW_RETURN return end_of_command body
@@ -44,13 +46,13 @@ int Prod16[] = {257,12,0};                 // TOKEN_EOL optional_enter
 int Prod17[] = {273,14,512,13,0};                 // TOKEN_KW_VAR 512 TOKEN_VARIABLE definition_prime
 int Prod18[] = {273,14,512,15,0};                 // TOKEN_KW_LET 512 TOKEN_VARIABLE definition_prime
 int Prod19[] = {278,259,16,0};                 // TOKEN_COLON type definition_prime_prime
-int Prod20[] = {274,17,0};                 // TOKEN_EQUALS assignment_prime
+int Prod20[] = {274,17,0};                 // TOKEN_EQUALS 531 assignment_prime
 int Prod21[] = {0};                 // ε
-int Prod22[] = {274,17,0};                 // TOKEN_EQUALS assignment_prime
-int Prod23[] = {274,17,14,0};                 // TOKEN_VARIABLE TOKEN_EQUALS assignment_prime
+int Prod22[] = {274,17,0};                 // TOKEN_EQUALS 531 assignment_prime
+int Prod23[] = {274,17,14,0};                 // TOKEN_VARIABLE 531 TOKEN_EQUALS  assignment_prime
 int Prod24[] = {261,0};                 // expression
-int Prod25[] = {518, 264, 514,0};                 // 514 function_call 518       <-- from assignment_prime
-int Prod26[] = {516, 4,515,272,517,3,2,0};                 // TOKEN_IDENTIFIER TOKEN_LBRACKET reset_arg_counter517 arguments 515 TOKEN_RBRACKET 516
+int Prod25[] = {518, 264, 514,0};                 // 531 514 function_call 518       <-- from assignment_prime
+int Prod26[] = {516, 4,515,272,517,3,2,0};                 // TOKEN_IDENTIFIER TOKEN_LBRACKET reset_arg_counter 517 arguments 515 TOKEN_RBRACKET 516
 int Prod27[] = {270,269,0};                 // c_type postfix
 int Prod28[] = {0};                 // ε
 int Prod29[] = {18,0};                 // TOKEN_QUESTIONMARK
@@ -64,9 +66,9 @@ int Prod36[] = {271,24,0};                 // TOKEN_SEMICOLLON end_of_command_pr
 int Prod37[] = {0};                 // ε
 int Prod38[] = {12,0};                 // TOKEN_EOL
 int Prod39[] = {0};                 // ε
-int Prod40[] = {268,259,16,14,267,0};                 // discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type parameters_prime
+int Prod40[] = {268,526,259,16,14,267,0};                 // discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type 526 parameters_prime
 int Prod41[] = {0};                 // ε
-int Prod42[] = {268,259,16,14,267,25,0};                 // TOKEN_COMMA discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type parameters_prime
+int Prod42[] = {268,526,259,16,14,267,25,0};                 // TOKEN_COMMA discard_parameter_name TOKEN_VARIABLE TOKEN_COLON type 526 parameters_prime
 int Prod43[] = {14,0};                 // TOKEN_VARIABLE
 int Prod44[] = {26,0};                 // TOKEN_UNDERSCORE
 int Prod45[] = {0};                 // ε
@@ -79,9 +81,9 @@ int Prod51[] = {279,25,515,0};                 // 515 TOKEN_COMMA arguments_prim
 int Prod52[] = {272,276,16,0};                 // TOKEN_COLON literal arguments
 int Prod53[] = {0};                 // ε
 int Prod54[] = {279,25,515,0};                 // 515 TOKEN_COMMA arguments_prime
-int Prod55[] = {0};                 // ε
-int Prod56[] = {261,0};                 // expression
-int Prod57[] = {264,0};                 // function_call
+int Prod55[] = {529,0};                 // 529, ε
+int Prod56[] = {530,261,0};                 // expression
+int Prod57[] = {264,514,0};                 //514 function_call
 int Prod58[] = {27,0};                 // TOKEN_INTEGER
 int Prod59[] = {28,0};                 // TOKEN_FLOAT
 int Prod60[] = {29,0};                 // TOKEN_STRING
@@ -123,6 +125,8 @@ int *productions[] = {
 
 void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data_type *final_type){
     DLLElementPtr activeElement = dll->activeElement; //remember active element
+    SymbolData *function;
+    SymbolData *variable;
     int should_push_value_to_variable = 0;
     char buffer[1024];
 
@@ -134,8 +138,17 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
          * 
          */
         case 512:
-            defineVariable(dll->activeElement->data.VAL.string);
+            if (dll->activeElement->data.ID == TOKEN_VARIABLE)
+            {
+                defineVariable(dll->activeElement->data.VAL.string);
+            }
+            else{
+                set_error(SYNTAX_ERR);
+            }
+        
             break;
+
+
         /**
          * @brief Push a value from the stack (from expression parser) to a variable.
          *        Search from the beginning of the expression for the variable token,
@@ -166,6 +179,7 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
                 //we get the value from the stack and push it to the variable
                 //we set the variable type
                 if (variable == NULL){
+                    
                     set_error(UNDEFINED_VAR_ERR);
                     return;
                 }
@@ -173,6 +187,7 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
 
                     variable->data.varData.is_initialized = 1;
                     variable->data.varData.is_defined = 1;
+                    
                     variable->data.varData.type = *final_type;
                     popToVariable(dll->activeElement->data.VAL.string);
                 }
@@ -184,6 +199,8 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             }
             dll->activeElement = activeElement;    //return to active element
             break;
+
+
         /**
          * @brief When a function is called, get the identifier, create a new temporary frame, set a jump to the function,
          *        and create a label called jump_to_function, which will be used when arguments are parsed.
@@ -191,11 +208,12 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
          */
         case 514:
             function_name = dll->activeElement->data.VAL.string;
-            //TODO push frame here ???
 
             create_frame();
+            generatePrint("CREATEFRAME\n");
             generatePrint("DEFVAR TF@%%retval\n");             
             break;
+
 
         /**
          * @brief Called at each argument, pushes the argument to the stack.
@@ -299,6 +317,7 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             argument_counter++;
             break;
 
+
         /**
          * @brief After all arguments are parsed, we call the function handle return value.
          * 
@@ -351,10 +370,11 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             }
             else{
                 generatePrint("CALL $%s\n", function_name);
-                generatePrint("PUSHS TF@%%retval\n");  //FIXME maybe duplicate of act 518
+
             }
             break;
             
+
         /**
          * @brief Reset argument counter.
          * 
@@ -362,6 +382,7 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
         case 517:
             argument_counter = 0;
             break;
+
 
         /**
          * @brief Push the return value of a function to the stack. Used to assign the return value to a variable.
@@ -371,6 +392,8 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             generatePrint("PUSHS TF@%%retval\n");
             break;
         break;
+
+
         /**
          * @brief First part of a if statement, already has bool value on the stack.
          *        We create the jumpifEQ to jump to the else label, which is named with the label counter.
@@ -385,6 +408,8 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             generatePrint("JUMPIFNEQS $$else%d\n", peek(block_stack));
 
             break;
+
+
         /**
          * @brief The second part of the if statement, the ELSE statement.
          *        
@@ -395,6 +420,8 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             generatePrint("LABEL $$else%d\n", peek(block_stack));
 
             break;
+
+
         /**
          * @brief End of the if statement, we pop the label counter from the stack and create the endif label.
          * 
@@ -403,6 +430,8 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             generatePrint("LABEL $$endif%d\n", peek(block_stack));
             pop_frame();
             break;
+
+
         /**
          * @brief First part of a while statement, we create the label for the top while loop to check the condition.
          *        If the condition is false, we jump to the end of the while loop.
@@ -414,6 +443,8 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             create_frame();
             push_frame();
             break;
+
+
         /**
          * @brief Second part of a while statement, after the expression is parsed.
          * 
@@ -423,15 +454,202 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             generatePrint("JUMPIFNEQS $$endwhile%d\n", peek(block_stack));
             break;
 
+
         /**
          * @brief Third part of a while statement, called at the end of the innerloop.
          * 
          */
         case 524:
-
             generatePrint("JUMP $$while%d\n", peek(block_stack));
             generatePrint("LABEL $$endwhile%d\n", peek(block_stack));
             pop_frame();
+            break;
+
+        /**
+         * @brief This action is called when a function is defined. We create a label for the function.
+         * 
+         */
+        case 525:
+            DLL_move_active_left(dll); // move to the identifier
+            create_frame();
+            push_frame();
+            generatePrint("JUMP $$end_%s\n", dll->activeElement->data.VAL.string);
+            defineFunction(dll->activeElement->data.VAL.string);
+
+            strcpy(defined_function_name, dll->activeElement->data.VAL.string);
+            dll->activeElement = activeElement;    //return to active element
+            
+            break;
+
+        /**
+         * @brief This action is called afte every parameter in the function definition.
+         * 
+         */
+        case 526:
+            function = get_symbol_from_frame(GLOBAL_FRAME, defined_function_name, FIND);
+
+
+            if (function){
+                DLL_move_active_left(dll); // was called on type, so we need to move left
+                
+                data_type type;
+                if (dll->activeElement->data.ID == TOKEN_KW_INT)
+                {
+                    type = INT;
+                }
+                else if (dll->activeElement->data.ID == TOKEN_KW_DOUBLE)
+                {
+                    type = FLOAT;
+                }
+                else if (dll->activeElement->data.ID == TOKEN_KW_STRING)
+                {
+                    type = STRING;
+                }
+                else if (dll->activeElement->data.ID == TOKEN_KW_NIL)
+                {
+                    type = NULL_TYPE;
+                }
+                else
+                {
+                    set_error(SYNTAX_ERR);
+                    return;
+                }
+                
+                DLL_move_active_left(dll); // move past the colon
+                DLL_move_active_left(dll); // move to the name
+
+                function->data.funcData.parameters = realloc(function->data.funcData.parameters, (function->data.funcData.num_of_params + 1) * sizeof(parameter));
+
+                function->data.funcData.parameters[function->data.funcData.num_of_params].type = type;
+                function->data.funcData.parameters[function->data.funcData.num_of_params].name = dll->activeElement->data.VAL.string;
+                generatePrint("MOVE GF@%s_%d_%d TF@%%arg%d\n", dll->activeElement->data.VAL.string, peek(recursion_stack), peek(block_stack), function->data.funcData.num_of_params);
+                defineVariable(dll->activeElement->data.VAL.string);
+
+                SymbolData *variable = get_symbol_from_frame(LOCAL_FRAME, dll->activeElement->data.VAL.string, FIND_UNINITIALIZED);
+                if (variable == NULL){
+                    set_error(UNDEFINED_VAR_ERR);
+                    return;
+                }
+
+                variable->data.varData.is_initialized = 1;
+                variable->data.varData.is_defined = 1;
+                variable->data.varData.type = type;
+
+                DLL_move_active_left(dll); // move to the identifier
+                if(dll->activeElement->data.ID == TOKEN_VARIABLE){
+                    function->data.funcData.parameters[function->data.funcData.num_of_params].identifier = dll->activeElement->data.VAL.string;
+                }
+                else{
+                    function->data.funcData.parameters[function->data.funcData.num_of_params].identifier = NULL;
+                }
+                function->data.funcData.num_of_params++;
+
+
+            
+            }
+            dll->activeElement = activeElement;    //return to active element
+            break;
+
+        /**
+         * @brief Called after the type of the function is parsed.
+         * 
+         */
+        case 527:
+            function = get_symbol_from_frame(GLOBAL_FRAME, defined_function_name, FIND);
+            DLL_move_active_left(dll); // move to the type
+            if (function)
+            {
+                data_type type;
+                if (dll->activeElement->data.ID == TOKEN_KW_INT)
+                {
+                    type = INT;
+                }
+                else if (dll->activeElement->data.ID == TOKEN_KW_DOUBLE)
+                {
+                    type = FLOAT;
+                }
+                else if (dll->activeElement->data.ID == TOKEN_KW_STRING)
+                {
+                    type = STRING;
+                }
+                else if (dll->activeElement->data.ID == TOKEN_KW_NIL)
+                {
+                    type = NULL_TYPE;
+                }
+                else
+                {
+                    set_error(SYNTAX_ERR);
+                    return;
+                }
+                function->data.funcData.return_type = type;
+            }
+            dll->activeElement = activeElement;    //return to active element
+            break;
+
+
+        /**
+         * @brief At the end of a function definition, we pop the frame.
+         * 
+         */
+        case 528:
+            pop_frame();
+            generatePrint("RETURN\n");
+            generatePrint("LABEL $$end_%s\n", defined_function_name);
+
+            break;
+
+        /**
+         * @brief When an empty return statement is parsed
+         * 
+         */
+        case 529:
+            generatePrint("MOVE TF@%%retval nil@nil\n");
+            generatePrint("RETURN\n");
+            break;
+        
+        /**
+         * @brief When an nonempty return statement is parsed, called after expression
+         * 
+         */
+        case 530:
+            generatePrint("POPS TF@%%retval\n");
+            generatePrint("RETURN\n");
+            break;
+
+        /**
+         * @brief Called after a equals token to set the variable as defined.
+         * 
+         */
+        case 531:
+            //DLL_move_active_left(dll); // move to the identifier
+
+            while (dll->activeElement->previousElement != NULL)
+            {
+                if (dll->activeElement->data.ID == TOKEN_VARIABLE)
+                {
+                    break;
+                }
+
+                DLL_move_active_left(dll);
+            }
+
+
+
+            variable = get_symbol_from_frame(LOCAL_FRAME, dll->activeElement->data.VAL.string, FIND_UNINITIALIZED);
+            //we get the value from the stack and push it to the variable
+            //we set the variable type
+            if (variable == NULL){
+                
+                set_error(UNDEFINED_VAR_ERR);
+                return;
+            }
+
+            variable->data.varData.is_initialized = 1;
+            variable->data.varData.is_defined = 1;
+
+
+        
+            dll->activeElement = activeElement;    //return to active element
             break;
 
         default:
