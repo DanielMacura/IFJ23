@@ -1,0 +1,12 @@
+func bar (with param: String) -> String {
+    write(param)
+    let r : String = foo(param)
+    return r
+}
+
+func foo (_ par: String) -> String {
+    write(par)
+    let ret = bar( par)
+    return ret
+}
+bar(with: "hello")

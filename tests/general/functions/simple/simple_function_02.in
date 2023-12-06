@@ -1,0 +1,11 @@
+let b = 1
+func foo (_ a: String) -> Int {
+    write(a)
+    bar("bar\n")
+    return 0
+}
+func bar (_ c: String) -> Int {
+    write(c)
+    return 0
+}
+foo("foo\n")

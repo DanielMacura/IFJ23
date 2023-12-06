@@ -1,0 +1,6 @@
+let b = 1
+func foo (with a: String) -> Int {
+    write(a)
+    return 0
+}
+foo(with : "test\n")

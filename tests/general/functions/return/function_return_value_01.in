@@ -1,0 +1,7 @@
+
+func foo (_ a: String) -> Int {
+    write(a)
+    return 0
+}
+var b = foo("test\n")
+write(b)
