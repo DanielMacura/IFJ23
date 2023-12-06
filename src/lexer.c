@@ -867,8 +867,10 @@ void convert_exponent_number( token *TOKEN){
     sscanf(expNumber, "%lf", &d_number);
     if (isDecimal) {
         sprintf(TOKEN->VAL.string, "%.*lf",DECIMAL_DIG, d_number); 
+        TOKEN->ID=TOKEN_FLOAT;
     } else {
         i_number = (int)d_number;
         sprintf(TOKEN->VAL.string, "%d", i_number); 
+        TOKEN->ID=TOKEN_INTEGER;
     }
 }
