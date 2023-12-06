@@ -1,0 +1,5 @@
+func foo (_ a: String, _ b: String) -> Int {
+    write(a)
+    return 0
+}
+foo("test\n")
