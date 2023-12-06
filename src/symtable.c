@@ -45,13 +45,12 @@ void symtable_init() {
  * @param key 
  */
 void get_block_id(char* key, char *identifier) {
-  frame_type frame_type;
-  SymbolData *symbol =  get_symbol(key, FIND, &frame_type);
+  SymbolData *symbol =  get_symbol_from_frame(LOCAL_FRAME, key, FIND);
   if (symbol) {
     if (symbol->type == FUNC_DATA)
     {
-        set_error(UNDEFINED_VAR_ERR);
-        return ;
+      set_error(UNDEFINED_VAR_ERR);
+      return ;
     }
     memset(identifier, 0, 1024);
     sprintf(identifier, "%d_%d", symbol->data.varData.recursion_depth ,symbol->data.varData.block_id);
@@ -145,42 +144,55 @@ SymbolData* get_symbol_from_frame(frame_type frame_type, char* symbol, symbol_mi
     // else if (frame_type == TEMP_FRAME) {
     //     frame = temp_frame;
     // }
-    // else if (frame_type == GLOBAL_FRAME) {
-    //     frame = global_frame;
-    // }
+    else if (frame_type == GLOBAL_FRAME) {
+        frame = global_frame;
+    }
     else {
         set_error(INTERNAL_ERR); //FIXME: //TODO: treba pekne sa vratit, nie exit koli freeom v maine
         return NULL;
     }
 
-    SymbolData *data = NULL;
-    if(follow_up != CREATE){
-      bst_search(frame, symbol);
+
+  SymbolData* data = bst_search(frame, symbol);
+
+
+  if (data)
+  { 
+    if(data && frame_type == GLOBAL_FRAME && follow_up == CREATE) {    // Function redefinition
+      set_error(UNDEFINED_FUNCTION_ERR);
+      return NULL;
     }
-    if (data)
-    {
-      // printf("Symbol in %d symbol table.\n", frame_type);
-      return data;
-	}
-	else {
-    if (follow_up == CREATE_IF_MISSING || follow_up == CREATE) {
+    return data;
+  }
+  else {
+    if ((follow_up == CREATE_IF_MISSING || follow_up == CREATE)&& frame_type == LOCAL_FRAME) {
       data = calloc(1, sizeof(SymbolData));
       data->data.varData.block_id = peek(block_stack);
       data->data.varData.recursion_depth = peek(recursion_stack);
       data->data.varData.is_initialized = 0;
+      data->type = VAR_DATA;
       frame = bst_insert(&frame, symbol, data, NULL);
       set_frame_root(frame_type, frame);
-      //printf("Get symbol %s from:\n", symbol);
       return data;
+    }
+    else if(frame_type == GLOBAL_FRAME && (follow_up == CREATE_IF_MISSING || follow_up == CREATE)){
+      data = calloc(1, sizeof(SymbolData));
+      data->type = FUNC_DATA;
+      frame = bst_insert(&frame, symbol, data, NULL);
+      set_frame_root(frame_type, frame);
+      return data;
+    }
+    else if ((follow_up == FIND ) && frame_type == GLOBAL_FRAME){    // Function not defined
+      set_error(UNDEFINED_FUNCTION_ERR);
+      return NULL;
+    }
+    else if ((follow_up == FIND ) && frame_type == LOCAL_FRAME){   // Variable not defined
+    
+      set_error(UNDEFINED_VAR_ERR);
+      return NULL;
     }
     else if (follow_up == IGNORE_IF_MISSING) {                     //FIXME: //TODO: warning: returning ‘int’ from a function with return type ‘SymbolData *’ makes pointer from integer without a cast [-Wint-conversion]
         //printf("Symbol not in symbol table, ignoring...\n");
-        
-        return NULL;
-    }
-    else if (follow_up == ERROR_IF_MISSING) {
-        //printf("Symbol not inf symbol table, raising error...\n");
-        set_error(UNDEFINED_VAR_ERR);
         return NULL;
     }
     else {
@@ -300,7 +312,7 @@ int create_frame() {
     // TODO: Free temp if exists
     exists_temp_frame = 1;
     bst_init(&temp_frame);
-    generatePrint("CREATEFRAME\n");
+    //generatePrint("CREATEFRAME\n");
     return 0;  //FIXME: //TODO: warning: control reaches end of non-void function [-Wreturn-type]
 }
 
@@ -321,7 +333,7 @@ int push_frame() {
 
     push(recursion_stack, recursion_counter);
     recursion_counter++;
-    generatePrint("PUSHFRAME\n");
+    //generatePrint("PUSHFRAME\n");
 
     local_frames[frame_stack_size] = temp_frame;
 
@@ -350,7 +362,7 @@ int pop_frame() {
     pop(block_stack);
     pop(recursion_stack);
     recursion_counter--;
-    generatePrint("POPFRAME\n");
+    //generatePrint("POPFRAME\n");
 
     temp_frame = local_frames[frame_stack_size - 1];
     frame_stack_size--;
