@@ -176,7 +176,7 @@ The finite state machine is deterministic, how ever to tell apart function and v
 
 
 \section{Syntactic analysis - top down}
-Due to code maintainability, a table based parser was chosen. The parser begins by pushing the start state (nonterminal) onto the stack. While the parse stack is not empty a symbol is popped of the top of the stack.If the popped symbol represents an action, it is executed. If the popped symbol represents a terminal, it is matched against the terminal from the lexer, if they don't match a syntactic error is raised, else \texttt{lexer\_next\_token} is called. Finally if the popped symbol is a nonterminal, if the symbol turns out to be a expression, the program flow is handed over to the bottom up precedence parser, otherwise the LL table is used. The table is indexed using the popped symbol and the current lookahead symbol (from the lexer), if the value is -1, a syntax error is raised, otherwise a valid production was found for the nonterminal and symbol. This number corresponds to a set of arrays representing each production, these are pushed onto the stack in a reverse order and the cycle continues.\cite[p.~211]{10.5555/77624}
+Due to code maintainability, a table based parser was chosen. The parser begins by pushing the start state (nonterminal) onto the stack. While the parse stack is not empty a symbol is popped of the top of the stack. If the popped symbol represents an action, it is executed. If the popped symbol represents a terminal, it is matched against the terminal from the lexer, if they don't match a syntactic error is raised, else \texttt{lexer\_next\_token} is called. Finally if the popped symbol is a nonterminal, if the symbol turns out to be a expression, the program flow is handed over to the bottom up precedence parser, otherwise the LL table is used. The table is indexed using the popped symbol and the current lookahead symbol (from the lexer), if the value is -1, a syntax error is raised, otherwise a valid production was found for the nonterminal and symbol. This number corresponds to a set of arrays representing each production, these are pushed onto the stack in a reverse order and the cycle continues.\cite[p.~211]{10.5555/77624} The LL grammar was constructed by hand and inspired by \cite[Appendix A.2]{10.5555/523017}.
 \newgeometry{bottom=0.1cm, top=0.1cm}
 \subsection{LL grammar}
 
@@ -296,7 +296,7 @@ expression -> TOKEN_EXCLAMATIONMARK
 
 When the top-down analysis detects a expression nonterminal, \texttt{parse\_expression} is called. The operator precedence parser stack is represented using \texttt{expr\_stack} which holds the individual items, \texttt{expr\_item}. Each \texttt{expr\_item} may represent either a dollar symbol, terminal or a nonterminal.
 
-The following algorithm is implemented, first a dollar symbol is pushed on the stack, following that the \texttt{next\_token} macro is called and based on the precedence table indexed with the top terminal on the stack and the currently processed token. The table consists of the following symbols :
+The following algorithm is implemented based on \cite[p.~236]{aho86}, first a dollar symbol is pushed on the stack, following that the \texttt{next\_token} macro is called and based on the precedence table indexed with the top terminal on the stack and the currently processed token. The table consists of the following symbols :
 \begin{itemize}
 \item \texttt{=} $\rightarrow$ Push the token onto the stack and read the next token.
 \item \texttt{<} $\rightarrow$  Set a breakpoint on the topmost terminal on the stack and push the token onto the stack and read the next token.
@@ -413,7 +413,6 @@ EXIT int@0
 \end{minipage}
 
 
-strukt., typ., KA, LLT, TERM, HOV, LL, KAPTXT
 
 
 \newpage 
