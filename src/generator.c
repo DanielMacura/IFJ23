@@ -73,15 +73,19 @@ void defineVariable(char *name){
     sprintf(buffer, "DEFVAR GF@%s_%d_%d\n", name, peek(recursion_stack), peek(block_stack));
     chararray_append_string(&defvar_string, buffer);
 
-    frame_type parent_frame;
-    SymbolData *symbol = get_symbol(name, CREATE, &parent_frame);
-    if (symbol == NULL){
+    SymbolData *symbol =get_symbol_from_frame(LOCAL_FRAME, name, CREATE);
 
+    if (symbol == NULL){
         set_error(UNDEFINED_VAR_ERR);
         return;
     }
 
 
+}
+
+void defineFunction(char *name){
+    generatePrint("LABEL $%s\n", name);
+    get_symbol_from_frame(GLOBAL_FRAME, name, CREATE);
 }
 
 void popToVariable(char *name) {

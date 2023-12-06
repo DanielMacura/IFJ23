@@ -30,6 +30,8 @@ void endMain();
 
 void defineVariable(char *name);
 
+void defineFunction(char *name);
+
 void popToVariable(char *name);
 
 void generateTerm(token *token_ptr);
