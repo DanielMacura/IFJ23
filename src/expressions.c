@@ -209,10 +209,10 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             // item = hash_table_lookup(tables.local, item_right->token_ptr->VAL.string);
 
             frame_type parent_frame;
-            SymbolData *item = get_symbol(item_right->token_ptr->VAL.string, FIND, &parent_frame);
+            SymbolData *item = get_symbol_from_frame(LOCAL_FRAME, item_right->token_ptr->VAL.string, FIND);
 
             if (!item) {
-                ERROR = UNDEFINED_VAR_ERR;
+                set_error(UNDEFINED_VAR_ERR);
                 return UNDEFINED;
             }
             else {
@@ -220,7 +220,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                     return item->data.varData.type;
                 }
                 else {
-                    ERROR = SEM_OTHER_ERR;
+                    set_error(TYPE_ERR);    //FIXME: check if this is correct
                     return UNDEFINED;
                 }
             }
@@ -265,6 +265,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
 
 
                     create_frame();
+                    generatePrint("CREATEFRAME\n");
                     //change type of left to float
                     // pop keeep, pop to var, change var, push var, push keeep
                     generatePrint("DEFVAR TF@rval\n");
@@ -289,6 +290,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             else if (left == FLOAT) {
                 if(right == INT){
                     create_frame();
+                    generatePrint("CREATEFRAME\n");
                     generatePrint("DEFVAR TF@rval\n");
                     generatePrint("POPS TF@%s\n", "rval");
                     implicit_conversion(INT, FLOAT, "rval");
@@ -319,10 +321,11 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
                     return UNDEFINED;
                 }
             }
-            else {
-                ERROR = EXPR_ERR;
-                return UNDEFINED;
-            }
+            // else {
+
+            //     ERROR = EXPR_ERR;
+            //     return UNDEFINED;
+            // }
             break;
         case TOKEN_DIVISION:
             if (left == NULL_TYPE && right == NULL_TYPE) {
@@ -334,6 +337,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             }
             else if(left ==FLOAT && right == INT){
                 create_frame();
+                generatePrint("CREATEFRAME\n");
                 generatePrint("DEFVAR TF@rval\n");
                 generatePrint("POPS TF@%s\n", "rval");
                 implicit_conversion(INT, FLOAT, "rval");
@@ -344,6 +348,7 @@ data_type get_data_type_from_item(expr_item *item_right, expr_item *item_middle,
             else if (left == INT && right == FLOAT){
 
                 create_frame();
+                generatePrint("CREATEFRAME\n");
                 //change type of left to float
                 // pop keeep, pop to var, change var, push var, push keeep
                 generatePrint("DEFVAR TF@rval\n");
