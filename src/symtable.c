@@ -1,6 +1,7 @@
 /**
  * @file symtable.c
- * @author Samuel Lenčéš (xlogin00@vutbr.cz)	//TODO zmen si login Samo
+ * @authors Samuel Lenčéš (xlencs00@vutbr.cz)
+ *          Daniel Mačura (xmacur09@vutbr.cz)
  * @brief Implementation of symtable for storing variables and functions
  * @version 0.1
  * @date 2023-11-22

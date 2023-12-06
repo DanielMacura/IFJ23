@@ -1,6 +1,7 @@
 /**
  * @file lexer.c
- * @author Daniel Mačura (xmacur09@vutbr.cz)
+ * @authors Daniel Mačura (xmacur09@vutbr.cz)
+ *          Matúš Masár (xmasar192vutbr.cz)
  * @brief Implementation of lexer functions
  * @version 0.1
  * @date 2023-11-22
