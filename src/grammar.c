@@ -12,6 +12,7 @@
 
 extern bst_node_t *global_frame;
 extern int argument_counter;
+int parameter_counter = 0;
 extern error_code ERROR;
 extern char *function_name;
 extern Stack *block_stack;
@@ -130,7 +131,6 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
     int should_push_value_to_variable = 0;
     char buffer[1024];
 
-
     switch (action_num)
     {
         /**
@@ -208,6 +208,7 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
          */
         case 514:
             function_name = dll->activeElement->data.VAL.string;
+            function = get_symbol_from_frame(GLOBAL_FRAME, function_name, CREATE_IF_MISSING);
 
             create_frame();
             generatePrint("CREATEFRAME\n");
@@ -371,6 +372,22 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             else{
                 generatePrint("CALL $%s\n", function_name);
 
+                // check nubmer of arguments
+                function = get_symbol_from_frame(GLOBAL_FRAME, function_name, FIND);
+                if (function == NULL){
+                    set_error(UNDEFINED_VAR_ERR);
+                    return;
+                }
+
+                if (function->data.funcData.num_of_params != argument_counter && (function->data.funcData.is_declared || function->data.funcData.is_called))        // function is either declared and calling with wrong number of arguments
+                {                                                                                                                                                   // or was previously called with a different number of arguments -> one of the calls is wrong
+                    set_error(PARAMETERS_ERR);
+                    break;
+                }
+                else if (function->data.funcData.is_called == 0 && function->data.funcData.is_declared == 0){   // function was not declared and not called, so we declare it and set it as called
+                    function->data.funcData.num_of_params = argument_counter;
+                    function->data.funcData.is_called = 1;
+                }
             }
             break;
             
@@ -482,7 +499,7 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
             break;
 
         /**
-         * @brief This action is called afte every parameter in the function definition.
+         * @brief This action is called after every parameter in the function definition.
          * 
          */
         case 526:
@@ -518,11 +535,11 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
                 DLL_move_active_left(dll); // move past the colon
                 DLL_move_active_left(dll); // move to the name
 
-                function->data.funcData.parameters = realloc(function->data.funcData.parameters, (function->data.funcData.num_of_params + 1) * sizeof(parameter));
+                function->data.funcData.parameters = realloc(function->data.funcData.parameters, (parameter_counter + 1) * sizeof(parameter));
 
-                function->data.funcData.parameters[function->data.funcData.num_of_params].type = type;
-                function->data.funcData.parameters[function->data.funcData.num_of_params].name = dll->activeElement->data.VAL.string;
-                generatePrint("MOVE GF@%s_%d_%d TF@%%arg%d\n", dll->activeElement->data.VAL.string, peek(recursion_stack), peek(block_stack), function->data.funcData.num_of_params);
+                function->data.funcData.parameters[parameter_counter].type = type;
+                function->data.funcData.parameters[parameter_counter].name = dll->activeElement->data.VAL.string;
+                generatePrint("MOVE GF@%s_%d_%d TF@%%arg%d\n", dll->activeElement->data.VAL.string, peek(recursion_stack), peek(block_stack), parameter_counter);
                 defineVariable(dll->activeElement->data.VAL.string);
 
                 SymbolData *variable = get_symbol_from_frame(LOCAL_FRAME, dll->activeElement->data.VAL.string, FIND_UNINITIALIZED);
@@ -537,12 +554,12 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
 
                 DLL_move_active_left(dll); // move to the identifier
                 if(dll->activeElement->data.ID == TOKEN_VARIABLE){
-                    function->data.funcData.parameters[function->data.funcData.num_of_params].identifier = dll->activeElement->data.VAL.string;
+                    function->data.funcData.parameters[parameter_counter].identifier = dll->activeElement->data.VAL.string;
                 }
                 else{
-                    function->data.funcData.parameters[function->data.funcData.num_of_params].identifier = NULL;
+                    function->data.funcData.parameters[parameter_counter].identifier = NULL;
                 }
-                function->data.funcData.num_of_params++;
+                parameter_counter++;
 
 
             
@@ -582,7 +599,21 @@ void actions(int action_num, DLL *dll, DLLElementPtr ptr_before_expression, data
                     return;
                 }
                 function->data.funcData.return_type = type;
+
+
+                //check if function was already called with different number of parameters
+                if (function->data.funcData.is_called && function->data.funcData.num_of_params != parameter_counter)
+                {
+                    set_error(PARAMETERS_ERR);
+                    return;
+                }
+                
+                //set number of parameters
+                function->data.funcData.num_of_params = parameter_counter;
+                function->data.funcData.is_declared = 1;
+                parameter_counter = 0;
             }
+
             dll->activeElement = activeElement;    //return to active element
             break;
 
