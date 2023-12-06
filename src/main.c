@@ -39,6 +39,17 @@ int main(int argc, char **argv) {
     init_stacks();
     symtable_init();
 
+    /**
+     * @brief Add built-in functions to the symbol table
+     * 
+     */
+    char* builtins[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "lenght", "substring", "ord", "chr"};
+    for (int i = 0; i < 10; i++)
+    {
+        get_symbol_from_frame(GLOBAL_FRAME, builtins[i], CREATE);
+    }
+
+
     // Lexer tests, generates tokens from the input
     if (argc == 2 && strcmp(argv[1], "-t") == 0)
     {        
